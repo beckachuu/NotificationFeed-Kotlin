@@ -2,9 +2,7 @@ package com.example.notificationfeed.domain.notif
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Build
 import android.service.notification.StatusBarNotification
-import androidx.annotation.RequiresApi
 import com.example.notificationfeed.Const
 import com.example.notificationfeed.data.SharedPrefsManager
 import com.example.notificationfeed.data.SharedPrefsManager.getBool
@@ -26,26 +24,27 @@ class NotifHandler internal constructor(private val context: Context) {
         Context.MODE_PRIVATE
     )
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun handlePosted(sbn: StatusBarNotification) {
         // Don't save duplicated notifications
         val notifEntity = NotificationEntity(context, sbn)
         val lastKey = getString(sharedPrefs, SharedPrefsManager.LAST_NOTI_KEY, "")
         val currentKey = sbn.key
         val lastTitle = getString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TITLE, "")
-        val currentTitle: String? = notifEntity.title
+        val currentTitle: String = notifEntity.title
         val lastText = getString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TEXT, "")
-        val currentText: String? = notifEntity.text
+        val currentText: String = notifEntity.text
         if (lastKey == currentKey && lastTitle == currentTitle && lastText == currentText) {
             if (Const.DEBUG) println("DUPLICATED [" + lastKey + "]: " + notifEntity.text)
             return
         }
         // Don't save non-selected apps
-        val appList = getStringSet(sharedPrefs, SharedPrefsManager.APP_LIST)
-        val recordChecked = getBool(sharedPrefs, SharedPrefsManager.RECORD_CHECKED, true)
+        val recordAppList = getStringSet(sharedPrefs, SharedPrefsManager.APP_LIST)
+        val recordChecked = getBool(sharedPrefs, SharedPrefsManager.RECORD_CHECKED, false)
         val packageName: String = notifEntity.packageName
-        if (appList.contains(packageName) && !recordChecked || !appList.contains(packageName) && recordChecked) {
-            if (Const.DEBUG) println("Not recording from this app")
+        if ((recordAppList.contains(packageName) && !recordChecked) ||
+            (!recordAppList.contains(packageName) && recordChecked)
+        ) {
+            if (Const.DEBUG) println("User chose not to record from this app")
             return
         }
 
@@ -53,7 +52,7 @@ class NotifHandler internal constructor(private val context: Context) {
         putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_KEY, currentKey)
         putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TITLE, currentTitle)
         putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TEXT, currentText)
-        notificationRepository.addNoti(
+        notificationRepository.addNotif(
             context,
             notifEntity
         )

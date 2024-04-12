@@ -1,14 +1,12 @@
 package com.example.notificationfeed.domain.notif
 
 
-import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import androidx.annotation.RequiresApi
 import com.example.notificationfeed.Const
 
 
-class NotifListener : NotificationListenerService() {
+class NotificationListener : NotificationListenerService() {
     private var notificationHandler: NotifHandler? = null
     override fun onCreate() {
         super.onCreate()
@@ -25,7 +23,6 @@ class NotifListener : NotificationListenerService() {
         super.onListenerDisconnected()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         try {
             notificationHandler!!.handlePosted(sbn)
@@ -51,7 +48,7 @@ class NotifListener : NotificationListenerService() {
 //    }
 
     companion object {
-        private var instance: NotifListener? = null
+        private var instance: NotificationListener? = null
         val interruptionFilter: Int
             get() {
                 if (instance != null) {

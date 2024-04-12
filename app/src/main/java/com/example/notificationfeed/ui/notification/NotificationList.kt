@@ -1,7 +1,5 @@
 package com.example.notificationfeed.ui.notification
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.notificationfeed.data.entities.NotificationEntity
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NotificationModelList(notifications: List<NotificationEntity?>) {
     LazyColumn {
@@ -31,7 +28,6 @@ fun NotificationModelList(notifications: List<NotificationEntity?>) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NotificationModelCard(notification: NotificationEntity) {
     var extended by remember { mutableStateOf(false) }
