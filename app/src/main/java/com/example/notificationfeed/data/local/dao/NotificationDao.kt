@@ -32,7 +32,7 @@ interface NotificationDao {
     fun getById(id: Int): NotificationEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(notificationentity: NotificationEntity?): Long
+    fun insert(notificationentity: NotificationEntity): Long
 
     @Query("DELETE FROM notificationentity WHERE nid = :id")
     fun delete(id: Int): Int

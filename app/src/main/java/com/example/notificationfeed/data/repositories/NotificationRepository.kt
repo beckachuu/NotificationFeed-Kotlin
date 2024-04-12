@@ -2,8 +2,6 @@ package com.example.notificationfeed.data.repositories
 
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.example.notificationfeed.Const
 import com.example.notificationfeed.data.entities.AppEntity
 import com.example.notificationfeed.data.entities.NotificationEntity
@@ -77,16 +75,12 @@ class NotificationRepository(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun addNoti(context: Context, notificationEntity: NotificationEntity) {
+    fun addNotif(context: Context, notificationEntity: NotificationEntity) {
         executor.execute {
             synchronized(Const.LOCK_OBJECT) {
                 if (!notificationEntity.isGroupSummary) {
                     notifDao.insert(notificationEntity)
                     appDao.insertApp(AppEntity(context, notificationEntity.packageName))
-
-                    // Update notification list screen
-
                 }
             }
         }

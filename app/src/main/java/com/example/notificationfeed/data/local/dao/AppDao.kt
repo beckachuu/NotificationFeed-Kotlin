@@ -20,7 +20,7 @@ interface AppDao {
 
     // Insert an app
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertApp(appentity: AppEntity?)
+    fun insertApp(appentity: AppEntity)
 
     // Set app's favorite preference
     @Query("UPDATE appentity SET isFavorite = :pref WHERE packageName = :packageName")

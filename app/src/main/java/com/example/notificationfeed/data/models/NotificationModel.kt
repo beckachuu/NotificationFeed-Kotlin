@@ -8,7 +8,6 @@ import com.example.notificationfeed.Const
 import com.example.notificationfeed.data.entities.NotificationEntity
 import com.example.notificationfeed.utils.Util
 import org.json.JSONException
-import org.json.JSONObject
 import java.text.DateFormat
 
 
@@ -37,16 +36,15 @@ class NotificationModel(
     init {
         id = notificationEntity.nid
         try {
-            val json = JSONObject(notificationEntity.toString())
-            packageName = json.getString("packageName")
+            packageName = notificationEntity.packageName
             appName = Util.getAppNameFromPackage(context, packageName, false)
-            title = json.optString("title")
-            text = json.optString("text")
+            title = notificationEntity.title
+            text = notificationEntity.text
             preview = notificationEntity.textBig
             if (!iconCache.containsKey(packageName)) {
                 iconCache[packageName] = Util.getAppIconFromPackage(context, packageName)
             }
-            date = format.format(json.optLong("systemTime"))
+            date = format.format(notificationEntity.systemTime)
             showDate = lastDate != date
         } catch (e: JSONException) {
             if (Const.DEBUG) e.printStackTrace()

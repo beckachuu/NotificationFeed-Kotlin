@@ -1,8 +1,6 @@
 package com.example.notificationfeed.data
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -14,15 +12,14 @@ import com.example.notificationfeed.data.local.dao.AppDao
 import com.example.notificationfeed.data.local.dao.NotificationDao
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Database(
     version = 1,
     entities = [NotificationEntity::class, AppEntity::class],
     autoMigrations = [],
-    exportSchema = true
+    exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun notiDao(): NotificationDao
+    abstract fun notifDao(): NotificationDao
     abstract fun myAppDao(): AppDao
 
     companion object {
@@ -49,9 +46,9 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_1_2: Migration = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // Create the new table
-//            database.execSQL("DROP TABLE IF EXISTS myappentity");
+//            database.execSQL("DROP TABLE IF EXISTS appentity");
                 db.execSQL(
-                    "CREATE TABLE IF NOT EXISTS myappentity " +
+                    "CREATE TABLE IF NOT EXISTS appentity " +
                             "(packageName TEXT PRIMARY KEY AUTOINCREMENT NOT NULL," +
                             "appName TEXT, isFavorite BOOLEAN, isReceivingNoti BOOLEAN)"
                 )

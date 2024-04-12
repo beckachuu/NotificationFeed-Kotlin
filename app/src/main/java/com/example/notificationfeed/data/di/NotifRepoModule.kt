@@ -20,7 +20,7 @@ object NotifRepoModule {
         val executor = ExecutorModule.provideExecutor()
 
         val db: AppDatabase = AppDatabase.getInstance(context)
-        val notifDao: NotificationDao = db.notiDao()
+        val notifDao: NotificationDao = db.notifDao()
         val appDao = db.myAppDao()
         return NotificationRepository(executor, notifDao, appDao)
     }
