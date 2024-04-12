@@ -64,19 +64,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun MainLayout() {
-    val appListViewModel: AppListViewModel = hiltViewModel()
-    val appList = appListViewModel.appList.observeAsState(emptyList())
+    @Composable
+    fun MainLayout() {
+        val appListViewModel: AppListViewModel = hiltViewModel()
+        val appList = appListViewModel.appList.observeAsState(emptyList())
 
-    val notifListViewModel: NotifListViewModel = hiltViewModel()
-    val notifList by notifListViewModel.notifList.observeAsState(emptyList())
+        val notifListViewModel: NotifListViewModel = hiltViewModel()
+        val notifList by notifListViewModel.notifList.observeAsState(emptyList())
 
-    val navController = rememberNavController()
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    NavigationPane(drawerState, appList.value, navController)
-
-    // Display the notification list
-    NotificationModelList(notifList)
+        val navController = rememberNavController()
+        val drawerState = rememberDrawerState(DrawerValue.Closed)
+        NavigationPane(drawerState, appList.value, navController, notifList)
+    }
 }

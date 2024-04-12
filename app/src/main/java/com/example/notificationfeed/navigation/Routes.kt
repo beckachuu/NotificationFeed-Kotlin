@@ -1,4 +1,4 @@
-package com.example.notificationfeed.ui.navigation
+package com.example.notificationfeed.navigation
 
 sealed class Routes(val route: String) {
     data object Home : Routes("home")
