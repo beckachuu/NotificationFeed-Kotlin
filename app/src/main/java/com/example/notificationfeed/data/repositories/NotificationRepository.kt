@@ -2,12 +2,13 @@ package com.example.notificationfeed.data.repositories
 
 
 import android.content.Context
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import com.example.notificationfeed.Const
 import com.example.notificationfeed.data.entities.AppEntity
 import com.example.notificationfeed.data.entities.NotificationEntity
 import com.example.notificationfeed.data.local.dao.AppDao
 import com.example.notificationfeed.data.local.dao.NotificationDao
-import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
@@ -35,45 +36,9 @@ class NotificationRepository(
     private val notifDao: NotificationDao,
     private val appDao: AppDao,
 ) {
-    val allNotifByIdAsc: Flow<List<NotificationEntity?>> = notifDao.getAllNotifications()
-
-    fun getAllNotifOlderThanId(id: Long, packageName: String?): List<NotificationEntity?>? {
-        val future: Future<List<NotificationEntity?>?> = executor.submit(
-            Callable<List<NotificationEntity?>?> {
-                if (id != Const.NEGATIVE.toLong()) return@Callable notifDao.getAllOlderThanId(
-                    id,
-                    Const.PAGE_SIZE,
-                    packageName
-                ) else return@Callable notifDao.getNewest(
-                    Const.PAGE_SIZE,
-                    packageName
-                )
-            })
-        return try {
-            future.get()
-        } catch (e: InterruptedException) {
-            if (Const.DEBUG) e.printStackTrace()
-            null
-        } catch (e: ExecutionException) {
-            if (Const.DEBUG) e.printStackTrace()
-            null
-        }
-    }
-
-    fun getNotiById(id: String): NotificationEntity? {
-        val intId = id.toInt()
-        val future: Future<NotificationEntity?> = executor.submit(
-            Callable<NotificationEntity?> {
-                notifDao.getById(intId)
-            })
-        return try {
-            future.get()
-        } catch (e: InterruptedException) {
-            null
-        } catch (e: ExecutionException) {
-            null
-        }
-    }
+    fun getAllNotifications() = Pager(PagingConfig(pageSize = Const.PAGE_SIZE)) {
+        notifDao.getAllNotifications()
+    }.flow
 
     fun addNotif(context: Context, notificationEntity: NotificationEntity) {
         executor.execute {

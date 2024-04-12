@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AppListViewModel @Inject constructor(
-    private val appRepository: AppRepository
+    appRepository: AppRepository
 ) : ViewModel() {
     val appList: LiveData<List<AppEntity?>> = appRepository.allAppByNameAsc.asLiveData()
 }

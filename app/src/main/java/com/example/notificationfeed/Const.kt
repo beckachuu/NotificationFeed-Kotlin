@@ -4,10 +4,10 @@ package com.example.notificationfeed
 object Const {
     val DEBUG: Boolean = BuildConfig.DEBUG
     val LOCK_OBJECT = Any()
+    val PAGE_SIZE = 20
     const val NEGATIVE = -1
     const val ALL_NOTI = "%"
     const val MAX_FRAGMENT_CACHE = 5
-    var PAGE_SIZE = 20
 
     // Feature flags
     const val ENABLE_ACTIVITY_RECOGNITION = true

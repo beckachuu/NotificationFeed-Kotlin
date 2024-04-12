@@ -8,6 +8,7 @@ import com.example.notificationfeed.Const
 
 class NotificationListener : NotificationListenerService() {
     private var notificationHandler: NotifHandler? = null
+    
     override fun onCreate() {
         super.onCreate()
         notificationHandler = NotifHandler(this)

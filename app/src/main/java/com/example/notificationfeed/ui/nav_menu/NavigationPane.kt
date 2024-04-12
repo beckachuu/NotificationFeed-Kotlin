@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.paging.compose.LazyPagingItems
 import com.example.notificationfeed.data.entities.AppEntity
 import com.example.notificationfeed.data.entities.NotificationEntity
 import com.example.notificationfeed.navigation.NavGraph
@@ -29,7 +30,7 @@ fun NavigationPane(
     drawerState: DrawerState,
     appList: List<AppEntity?>?,
     navController: NavHostController,
-    notifList: List<NotificationEntity?>
+    notifList: LazyPagingItems<NotificationEntity>
 ) {
     val scope = rememberCoroutineScope()
 

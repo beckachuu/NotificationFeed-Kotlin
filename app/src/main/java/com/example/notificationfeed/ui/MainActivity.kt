@@ -1,7 +1,6 @@
 package com.example.notificationfeed.ui
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,10 +10,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.example.notificationfeed.data.entities.AppEntity
 import com.example.notificationfeed.domain.notif.NotificationListener
 import com.example.notificationfeed.ui.nav_menu.NavigationPane
 import com.example.notificationfeed.ui.theme.NotifFeedTheme
@@ -55,11 +55,7 @@ class MainActivity : ComponentActivity() {
         if (!permissionViewModel.isNotificationServiceEnabled()) {
             PermissionDialog(onConfirm = permissionViewModel::openNotificationAccessSettings)
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(Intent(this, NotificationListener::class.java))
-            } else {
-                startService(Intent(this, NotificationListener::class.java))
-            }
+            startService(Intent(this, NotificationListener::class.java))
             MainLayout()
         }
     }
@@ -67,13 +63,13 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun MainLayout() {
         val appListViewModel: AppListViewModel = hiltViewModel()
-        val appList = appListViewModel.appList.observeAsState(emptyList())
+        val appList = appListViewModel.appList.observeAsState(emptyList<AppEntity>())
 
         val notifListViewModel: NotifListViewModel = hiltViewModel()
-        val notifList by notifListViewModel.notifList.observeAsState(emptyList())
+        val notifListFlow = notifListViewModel.notifList.collectAsLazyPagingItems()
 
         val navController = rememberNavController()
         val drawerState = rememberDrawerState(DrawerValue.Closed)
-        NavigationPane(drawerState, appList.value, navController, notifList)
+        NavigationPane(drawerState, appList.value, navController, notifListFlow)
     }
 }

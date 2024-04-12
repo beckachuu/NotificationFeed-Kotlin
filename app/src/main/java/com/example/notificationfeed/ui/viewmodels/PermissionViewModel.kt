@@ -10,19 +10,19 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PermissionViewModel @Inject constructor(
-    application: Application
+    private val application: Application
 ) : ViewModel() {
 
-    private val context = application.applicationContext
+    private val applicationContext = application.applicationContext
 
     fun isNotificationServiceEnabled(): Boolean {
-        val packageNames = NotificationManagerCompat.getEnabledListenerPackages(context)
-        return packageNames.contains(context.packageName)
+        val packageNames = NotificationManagerCompat.getEnabledListenerPackages(applicationContext)
+        return packageNames.contains(application.applicationContext.packageName)
     }
 
     fun openNotificationAccessSettings() {
         val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        context.startActivity(intent)
+        applicationContext.startActivity(intent)
     }
 }

@@ -1,17 +1,18 @@
 package com.example.notificationfeed.ui.viewmodels
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
+import androidx.paging.PagingData
 import com.example.notificationfeed.data.entities.NotificationEntity
 import com.example.notificationfeed.data.repositories.NotificationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 @HiltViewModel
 class NotifListViewModel @Inject constructor(
-    private val notificationRepository: NotificationRepository
+    notificationRepository: NotificationRepository
 ) : ViewModel() {
-    val notifList: LiveData<List<NotificationEntity?>> =
-        notificationRepository.allNotifByIdAsc.asLiveData()
+    val notifList: Flow<PagingData<NotificationEntity>> =
+        notificationRepository.getAllNotifications()
 }
+

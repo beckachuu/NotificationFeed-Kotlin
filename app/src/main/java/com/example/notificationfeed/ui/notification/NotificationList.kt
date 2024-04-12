@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -15,38 +14,47 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.example.notificationfeed.data.entities.NotificationEntity
 
 @Composable
-fun NotificationModelList(notifications: List<NotificationEntity?>) {
+fun NotificationModelList(notifications: LazyPagingItems<NotificationEntity>) {
     LazyColumn {
-        items(notifications) { notification ->
-            if (notification != null) {
-                NotificationModelCard(notification)
-            }
+        items(count = notifications.itemCount,
+            // Here we use the new itemKey extension on LazyPagingItems to
+            // handle placeholders automatically, ensuring you only need to provide
+            // keys for real items
+            key = notifications.itemKey { it.nid },
+            // Similarly, itemContentType lets you set a custom content type for each item
+            contentType = notifications.itemContentType { "contentType" }) { index ->
+            NotificationModelCard(notifications[index])
         }
     }
 }
 
 @Composable
-fun NotificationModelCard(notification: NotificationEntity) {
+fun NotificationModelCard(notification: NotificationEntity?) {
     var extended by remember { mutableStateOf(false) }
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { extended = !extended },
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 10.dp
-        )
-    ) {
-        Column {
+    if (notification != null) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { extended = !extended },
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 10.dp
+            )
+        ) {
+            Column {
 //            Text(text = notification.date)
-            Text(text = notification.title, maxLines = if (extended) Int.MAX_VALUE else 1)
-            if (extended) {
+                Text(text = notification.title, maxLines = if (extended) Int.MAX_VALUE else 1)
+                if (extended) {
 //                Text(text = notification.preview)
-            } else {
-                Text(text = notification.text)
+                } else {
+                    Text(text = notification.text)
+                }
             }
         }
     }

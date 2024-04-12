@@ -1,11 +1,11 @@
 package com.example.notificationfeed.data.local.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.notificationfeed.data.entities.NotificationEntity
-import kotlinx.coroutines.flow.Flow
 
 /**
  * This interface handles all operations with data in the database
@@ -16,14 +16,8 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface NotificationDao {
-    /**
-     * Get all notifications by ASC id.
-     */
-    @Query("SELECT * FROM notificationentity ORDER BY nid ASC")
-    fun getAllNotifications(): Flow<List<NotificationEntity?>>
-
-    @Query("SELECT * FROM notificationentity WHERE nid < :id AND packageName LIKE :packageName ORDER BY nid DESC LIMIT :pageSize")
-    fun getAllOlderThanId(id: Long, pageSize: Int, packageName: String?): List<NotificationEntity?>?
+    @Query("SELECT * FROM notificationentity ORDER BY nid DESC")
+    fun getAllNotifications(): PagingSource<Int, NotificationEntity>
 
     @Query("SELECT * FROM notificationentity WHERE packageName LIKE :packageName ORDER BY nid DESC LIMIT :pageSize")
     fun getNewest(pageSize: Int, packageName: String?): List<NotificationEntity?>?
