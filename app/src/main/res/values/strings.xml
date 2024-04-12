@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Notification Feed</string>
+    <string name="service_name">NotificationListener</string>
 </resources>
