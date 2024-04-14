@@ -1,8 +1,6 @@
 package com.beckachu.notificationfeed.ui.nav_menu
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
@@ -28,7 +26,6 @@ import com.beckachu.notificationfeed.ui.sign_in.UserData
 import com.beckachu.notificationfeed.ui.viewmodels.NotifListViewModel
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavigationPane(
     drawerState: DrawerState,
