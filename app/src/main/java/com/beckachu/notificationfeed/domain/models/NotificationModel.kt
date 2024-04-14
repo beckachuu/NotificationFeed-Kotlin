@@ -2,8 +2,6 @@ package com.beckachu.notificationfeed.domain.models
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.beckachu.notificationfeed.Const
 import com.beckachu.notificationfeed.data.entities.NotificationEntity
 import com.beckachu.notificationfeed.utils.Util
@@ -16,7 +14,7 @@ import java.text.DateFormat
  * (which is kinda similar to the Entity, except
  * this doesn't need all the Entity's data fields)
  */
-@RequiresApi(Build.VERSION_CODES.O)
+
 class NotificationModel(
     context: Context,
     notificationEntity: NotificationEntity,

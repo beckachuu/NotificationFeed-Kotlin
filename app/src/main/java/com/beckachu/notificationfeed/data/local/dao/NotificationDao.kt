@@ -19,8 +19,8 @@ interface NotificationDao {
     @Query("SELECT * FROM notificationentity ORDER BY nid DESC")
     fun getAllNotifications(): PagingSource<Int, NotificationEntity>
 
-    @Query("SELECT * FROM notificationentity WHERE packageName LIKE :packageName ORDER BY nid DESC LIMIT :pageSize")
-    fun getNewest(pageSize: Int, packageName: String?): List<NotificationEntity?>?
+    @Query("SELECT * FROM notificationentity WHERE packageName LIKE :packageName ORDER BY nid DESC")
+    fun getAllByApp(packageName: String?): PagingSource<Int, NotificationEntity>
 
     @Query("SELECT * FROM notificationentity WHERE nid = :id")
     fun getById(id: Int): NotificationEntity?

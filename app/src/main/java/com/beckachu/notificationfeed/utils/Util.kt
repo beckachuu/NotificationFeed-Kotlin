@@ -3,7 +3,9 @@ package com.beckachu.notificationfeed.utils
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.media.AudioManager
@@ -12,15 +14,23 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.content.PermissionChecker
 import com.beckachu.notificationfeed.BuildConfig
 import com.beckachu.notificationfeed.Const
 import java.text.DateFormat
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 
 object Util {
     var format = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault())
+
+
+    val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
+
     fun getAppNameFromPackage(
         context: Context,
         packageName: String?,
@@ -49,6 +59,21 @@ object Util {
         }
         return drawable
     }
+
+    @Composable
+    fun Drawable.toImageBitmap(): ImageBitmap? {
+        if (this is BitmapDrawable) {
+            return bitmap.asImageBitmap()
+        }
+
+        val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        setBounds(0, 0, canvas.width, canvas.height)
+        draw(canvas)
+
+        return bitmap.asImageBitmap()
+    }
+
 
     fun getAppIconFromByteArray(context: Context, byteArray: ByteArray): Drawable {
         val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
@@ -124,7 +149,7 @@ object Util {
         return -1
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     fun getBatteryStatus(context: Context): String {
         try {
             val bm = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager

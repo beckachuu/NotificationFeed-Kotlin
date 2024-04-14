@@ -40,6 +40,11 @@ class NotificationRepositoryImpl(
         notifDao.getAllNotifications()
     }.flow
 
+    fun getAllNotificationsByApp(packageName: String) =
+        Pager(PagingConfig(pageSize = Const.PAGE_SIZE)) {
+            notifDao.getAllByApp(packageName)
+        }.flow
+
     fun addNotif(context: Context, notificationEntity: NotificationEntity) {
         executor.execute {
             synchronized(Const.LOCK_OBJECT) {

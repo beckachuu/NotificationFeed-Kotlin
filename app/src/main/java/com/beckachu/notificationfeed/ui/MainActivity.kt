@@ -1,7 +1,6 @@
 package com.beckachu.notificationfeed.ui
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -9,7 +8,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -71,6 +69,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
     @Composable
     fun AskPermission() {
         if (!permissionViewModel.isNotificationServiceEnabled()) {
@@ -83,7 +82,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     @Composable
     fun MainLayout() {
         val drawerState = rememberDrawerState(DrawerValue.Closed)

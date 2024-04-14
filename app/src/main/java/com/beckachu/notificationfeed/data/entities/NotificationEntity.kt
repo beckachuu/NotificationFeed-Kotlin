@@ -1,7 +1,6 @@
 package com.beckachu.notificationfeed.data.entities
 
 import android.content.Context
-import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.NotificationListenerService.Ranking
 import android.service.notification.StatusBarNotification
@@ -98,9 +97,7 @@ data class NotificationEntity(
         ringerMode = Util.getRingerMode(context)
         isScreenOn = Util.isScreenOn(context)
         batteryLevel = Util.getBatteryLevel(context)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            batteryStatus = Util.getBatteryStatus(context)
-        }
+        batteryStatus = Util.getBatteryStatus(context)
         // isConnected = Util.isNetworkAvailable(context);
         // connectionType = Util.getConnectivityType(context);
 
