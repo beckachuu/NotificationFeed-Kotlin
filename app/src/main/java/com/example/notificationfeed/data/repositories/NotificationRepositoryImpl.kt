@@ -52,7 +52,7 @@ class NotificationRepositoryImpl(
     }
 
     fun deleteNoti(id: String): Int {
-        val future: Future<Int> = executor.submit(Callable<Int> {
+        val future: Future<Int> = executor.submit(Callable {
             synchronized(Const.LOCK_OBJECT) {
                 val intId = id.toInt()
                 return@Callable notifDao.delete(intId)
@@ -68,7 +68,7 @@ class NotificationRepositoryImpl(
     }
 
     fun deleteNoti(id: Int): Int {
-        val future: Future<Int> = executor.submit(Callable<Int> {
+        val future: Future<Int> = executor.submit(Callable {
             synchronized(Const.LOCK_OBJECT) {
                 return@Callable notifDao.delete(id)
             }

@@ -1,11 +1,19 @@
 package com.example.notificationfeed
 
+import androidx.compose.ui.unit.dp
+
 
 object Const {
     val DEBUG: Boolean = BuildConfig.DEBUG
     val LOCK_OBJECT = Any()
     val PAGE_SIZE = 40
-    const val NEGATIVE = -1
+
+    // Navigation menu stuff
+    val LEFT_PADDING = 21.dp
+    val VERTICAL_PADDING = 16.dp
+    val NAV_MENU_WIDTH = 0.7f
+    val DIVIDER_WIDTH = 0.8f
+
     const val ALL_NOTI = "%"
     const val MAX_FRAGMENT_CACHE = 5
 
