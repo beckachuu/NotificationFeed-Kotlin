@@ -31,7 +31,7 @@ import java.util.concurrent.Future
  * (So basically the UI layer will use this class to get all the data it needs,
  * without directly interacting with the database)
  */
-class NotificationRepository(
+class NotificationRepositoryImpl(
     private val executor: ExecutorService,
     private val notifDao: NotificationDao,
     private val appDao: AppDao,

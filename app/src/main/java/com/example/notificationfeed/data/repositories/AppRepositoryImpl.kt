@@ -1,10 +1,8 @@
 package com.example.notificationfeed.data.repositories
 
-import android.content.Context
 import android.util.Log
 import com.example.notificationfeed.data.entities.AppEntity
 import com.example.notificationfeed.data.local.dao.AppDao
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
@@ -15,23 +13,10 @@ import javax.inject.Singleton
 
 
 @Singleton
-class AppRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
+class AppRepositoryImpl @Inject constructor(
     private val executor: ExecutorService,
     private val appDao: AppDao
 ) {
-    fun countAllApps(): Int {
-        val future: Future<Int> = executor.submit(appDao::countAll)
-        return try {
-            future.get()
-        } catch (e: InterruptedException) {
-            Log.e("AppRepository", "Error counting apps", e)
-            0
-        } catch (e: ExecutionException) {
-            Log.e("AppRepository", "Error counting apps", e)
-            0
-        }
-    }
 
     val allAppByNameAsc: Flow<List<AppEntity?>> =
         appDao.allByNameAsc
@@ -44,10 +29,10 @@ class AppRepository @Inject constructor(
             return try {
                 future.get()
             } catch (e: InterruptedException) {
-                Log.e("AppRepository", "Error getting package names", e)
+                Log.e("AppRepositoryImpl", "Error getting package names", e)
                 null
             } catch (e: ExecutionException) {
-                Log.e("AppRepository", "Error getting package names", e)
+                Log.e("AppRepositoryImpl", "Error getting package names", e)
                 null
             }
         }
@@ -65,10 +50,10 @@ class AppRepository @Inject constructor(
         return try {
             future.get()
         } catch (e: InterruptedException) {
-            Log.e("AppRepository", "Error updating app favorite", e)
+            Log.e("AppRepositoryImpl", "Error updating app favorite", e)
             false
         } catch (e: ExecutionException) {
-            Log.e("AppRepository", "Error updating app favorite", e)
+            Log.e("AppRepositoryImpl", "Error updating app favorite", e)
             false
         }
     }
@@ -80,10 +65,10 @@ class AppRepository @Inject constructor(
         return try {
             future.get()
         } catch (e: InterruptedException) {
-            Log.e("AppRepository", "Error updating receive noti pref", e)
+            Log.e("AppRepositoryImpl", "Error updating receive noti pref", e)
             false
         } catch (e: ExecutionException) {
-            Log.e("AppRepository", "Error updating receive noti pref", e)
+            Log.e("AppRepositoryImpl", "Error updating receive noti pref", e)
             false
         }
     }

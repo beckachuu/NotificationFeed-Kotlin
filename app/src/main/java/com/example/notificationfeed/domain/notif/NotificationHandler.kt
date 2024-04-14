@@ -13,11 +13,11 @@ import com.example.notificationfeed.data.SharedPrefsManager.putInt
 import com.example.notificationfeed.data.SharedPrefsManager.putString
 import com.example.notificationfeed.data.di.NotifRepoModule
 import com.example.notificationfeed.data.entities.NotificationEntity
-import com.example.notificationfeed.data.repositories.NotificationRepository
+import com.example.notificationfeed.data.repositories.NotificationRepositoryImpl
 
 
 class NotifHandler internal constructor(private val context: Context) {
-    private val notificationRepository: NotificationRepository =
+    private val notificationRepositoryImpl: NotificationRepositoryImpl =
         NotifRepoModule.provideAppRepository(context)
     private val sharedPrefs: SharedPreferences = context.applicationContext.getSharedPreferences(
         SharedPrefsManager.DEFAULT_NAME,
@@ -52,7 +52,7 @@ class NotifHandler internal constructor(private val context: Context) {
         putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_KEY, currentKey)
         putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TITLE, currentTitle)
         putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TEXT, currentText)
-        notificationRepository.addNotif(
+        notificationRepositoryImpl.addNotif(
             context,
             notifEntity
         )

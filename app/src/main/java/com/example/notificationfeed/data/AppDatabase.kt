@@ -45,24 +45,20 @@ abstract class AppDatabase : RoomDatabase() {
 
         val MIGRATION_1_2: Migration = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                // Create the new table
-//            database.execSQL("DROP TABLE IF EXISTS appentity");
-                db.execSQL(
-                    "CREATE TABLE IF NOT EXISTS appentity " +
-                            "(packageName TEXT PRIMARY KEY AUTOINCREMENT NOT NULL," +
-                            "appName TEXT, isFavorite BOOLEAN, isReceivingNoti BOOLEAN)"
-                )
+                // Create a new table with the same name but without the removed field
+                db.execSQL("CREATE TABLE new_NotificationEntity (/* new schema */)")
 
-                // Copy the data
-//            database.execSQL("INSERT INTO users_new (userid, username, last_update) SELECT userid, username, last_update FROM users");
+                // Copy the data from the old table to the new table
+                db.execSQL("INSERT INTO new_NotificationEntity SELECT /* columns except the removed one */ FROM NotificationEntity")
 
                 // Remove the old table
-//            database.execSQL("DROP TABLE users");
+                db.execSQL("DROP TABLE NotificationEntity")
 
-                // Change the table name to the correct one
-                // database.execSQL("ALTER TABLE users_new RENAME TO users");
+                // Rename the new table to the old table's name
+                db.execSQL("ALTER TABLE new_NotificationEntity RENAME TO NotificationEntity")
             }
         }
+
     }
 }
 
