@@ -9,10 +9,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.beckachu.notificationfeed" />
+                  <option name="mobileSdkAppId" value="1:556945841475:android:90a66bf30238abc96623f6" />
+                  <option name="projectId" value="notification-hehe" />
+                  <option name="projectNumber" value="556945841475" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

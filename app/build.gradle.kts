@@ -4,14 +4,16 @@ plugins {
 
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.notificationfeed"
+    namespace = "com.beckachu.notificationfeed"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.notificationfeed"
+        applicationId = "com.beckachu.notificationfeed"
         minSdk = 23
         targetSdk = 34
         versionCode = 1
@@ -67,9 +69,10 @@ android {
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
-    implementation(platform("androidx.compose:compose-bom:2023.08.00"))
 
+    implementation(platform("androidx.compose:compose-bom:2023.08.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -84,6 +87,7 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.48")
     implementation("androidx.navigation:navigation-runtime-ktx:2.7.7")
     implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("com.google.android.material:material:1.11.0")
     ksp("com.google.dagger:hilt-android-compiler:2.48")
     ksp("androidx.hilt:hilt-compiler:1.2.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
@@ -103,5 +107,21 @@ dependencies {
     ksp("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     implementation("androidx.room:room-paging:$roomVersion")
+
+    // Import the the BoM for the Firebase platform
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation("com.google.firebase:firebase-analytics")
+
+    // Add the dependency for the Firebase Authentication library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+
+    // Also add the dependency for the Google Play services library and specify its version
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
+
+    implementation("io.coil-kt:coil-compose:2.6.0")
 }
 

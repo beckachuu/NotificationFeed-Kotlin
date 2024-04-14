@@ -1,42 +1,59 @@
 package com.beckachu.notificationfeed.ui
 
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.beckachu.notificationfeed.data.SharedPrefsManager
 import com.beckachu.notificationfeed.data.entities.AppEntity
 import com.beckachu.notificationfeed.domain.notif.NotificationListener
+import com.beckachu.notificationfeed.navigation.NavGraph
+import com.beckachu.notificationfeed.ui.dialogs.PermissionDialog
 import com.beckachu.notificationfeed.ui.nav_menu.NavigationPane
+import com.beckachu.notificationfeed.ui.sign_in.GoogleAuthUIClient
 import com.beckachu.notificationfeed.ui.theme.NotifFeedTheme
 import com.beckachu.notificationfeed.ui.viewmodels.AppListViewModel
 import com.beckachu.notificationfeed.ui.viewmodels.NotifListViewModel
 import com.beckachu.notificationfeed.ui.viewmodels.PermissionViewModel
+import com.beckachu.notificationfeed.ui.viewmodels.SignInViewModel
+import com.google.android.gms.auth.api.identity.Identity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val permissionViewModel: PermissionViewModel by viewModels()
+    private val googleAuthUIClient by lazy {
+        GoogleAuthUIClient(
+            context = applicationContext,
+            oneTapClient = Identity.getSignInClient(applicationContext)
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             NotifFeedTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
+                    startService(Intent(this, NotificationListener::class.java))
                     AskPermission()
                 }
             }
@@ -57,13 +74,16 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AskPermission() {
         if (!permissionViewModel.isNotificationServiceEnabled()) {
-            PermissionDialog(onConfirm = permissionViewModel::openNotificationAccessSettings)
+            PermissionDialog(
+                dialogText = "You need to enable the permission to use this app. Please enable the Notification access permission to make the app work.",
+                onConfirm = permissionViewModel::openNotificationAccessSettings
+            )
         } else {
-            startService(Intent(this, NotificationListener::class.java))
             MainLayout()
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     fun MainLayout() {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -71,27 +91,47 @@ class MainActivity : ComponentActivity() {
         val appListViewModel: AppListViewModel = hiltViewModel()
         val appList = appListViewModel.appList.observeAsState(emptyList<AppEntity>())
 
+        val viewModel = viewModel<SignInViewModel>()
         val navController = rememberNavController()
+        NavGraph(navController)
 
         val notifListViewModel: NotifListViewModel = hiltViewModel()
         val notifListFlow = notifListViewModel.notifList.collectAsLazyPagingItems()
 
-        val sharedPrefs: SharedPreferences = getSharedPreferences(
-            SharedPrefsManager.DEFAULT_NAME,
-            Context.MODE_PRIVATE
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val launcher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartIntentSenderForResult(),
+            onResult = { result ->
+                if (result.resultCode == RESULT_OK) {
+                    lifecycleScope.launch {
+                        val signInResult = googleAuthUIClient.signInWithIntent(
+                            intent = result.data ?: return@launch
+                        )
+                        viewModel.onSignInResult(signInResult)
+                    }
+                }
+            }
         )
-        val isLoggedIn = remember { mutableStateOf(sharedPrefs.getBoolean("isLoggedIn", false)) }
-
-        val onLoginClick = {
-        }
 
         NavigationPane(
             drawerState,
             appList.value,
             navController,
+            notifListViewModel,
             notifListFlow,
-            isLoggedIn.value,
-            onLoginClick
+            state,
+            onSignInClick = {
+                lifecycleScope.launch {
+                    val signInIntentSender = googleAuthUIClient.signIn()
+                    launcher.launch(
+                        IntentSenderRequest.Builder(
+                            signInIntentSender ?: return@launch
+                        ).build()
+                    )
+                }
+            },
+            googleAuthUIClient.getSignedInUser(),
+            applicationContext
         )
 
     }
