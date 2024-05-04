@@ -45,7 +45,7 @@ fun NotificationModelList(notifications: LazyPagingItems<NotificationEntity>, co
                 .toLocalDate()
             date.format(Util.dateFormat)
         }
-        .toSortedMap()
+        .toSortedMap(compareByDescending { it })
 
     LazyColumn(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)) {
         groupedNotifications.forEach { (date, notifs) ->
@@ -117,7 +117,7 @@ fun NotificationModelCard(notification: NotificationEntity?, context: Context) {
                     style = MaterialTheme.typography.bodyLarge
                 )
 
-                if (extended && textBig != "" && text != textBig) {
+                if (extended && (textBig != "") && (text != textBig)) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = textBig,

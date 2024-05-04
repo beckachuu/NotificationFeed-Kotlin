@@ -7,12 +7,17 @@ object SharedPrefsManager {
     const val DEFAULT_NAME = "General"
     const val UNREAD_COUNT = "UNREAD_COUNT"
 
-    const val LAST_NOTI_KEY = "LAST_KEY"
-    const val LAST_NOTI_TITLE = "LAST_NOTI_TITLE"
-    const val LAST_NOTI_TEXT = "LAST_NOTI_TEXT"
+    const val LAST_NOTIF_KEY = "LAST_KEY"
+    const val LAST_NOTIF_TITLE = "LAST_NOTIF_TITLE"
+    const val LAST_NOTIF_TEXT = "LAST_NOTIF_TEXT"
 
     const val APP_LIST = "APP_LIST"
     const val RECORD_CHECKED = "RECORD_PREF"
+
+    // Sign-in states
+    const val SIGN_IN_SUCCESSFUL = "isSignInSuccessful"
+    const val SIGN_IN_ERROR = "signInError"
+
     fun getBool(prefs: SharedPreferences, key: String?, defaultValue: Boolean): Boolean {
         return prefs.getBoolean(key, defaultValue)
     }

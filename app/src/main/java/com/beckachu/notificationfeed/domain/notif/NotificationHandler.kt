@@ -27,11 +27,11 @@ class NotifHandler internal constructor(private val context: Context) {
     fun handlePosted(sbn: StatusBarNotification) {
         // Don't save duplicated notifications
         val notifEntity = NotificationEntity(context, sbn)
-        val lastKey = getString(sharedPrefs, SharedPrefsManager.LAST_NOTI_KEY, "")
+        val lastKey = getString(sharedPrefs, SharedPrefsManager.LAST_NOTIF_KEY, "")
         val currentKey = sbn.key
-        val lastTitle = getString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TITLE, "")
+        val lastTitle = getString(sharedPrefs, SharedPrefsManager.LAST_NOTIF_TITLE, "")
         val currentTitle: String = notifEntity.title
-        val lastText = getString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TEXT, "")
+        val lastText = getString(sharedPrefs, SharedPrefsManager.LAST_NOTIF_TEXT, "")
         val currentText: String = notifEntity.text
         if (lastKey == currentKey && lastTitle == currentTitle && lastText == currentText) {
             if (Const.DEBUG) println("DUPLICATED [" + lastKey + "]: " + notifEntity.text)
@@ -49,9 +49,9 @@ class NotifHandler internal constructor(private val context: Context) {
         }
 
         // Now it's good to add new notification
-        putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_KEY, currentKey)
-        putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TITLE, currentTitle)
-        putString(sharedPrefs, SharedPrefsManager.LAST_NOTI_TEXT, currentText)
+        putString(sharedPrefs, SharedPrefsManager.LAST_NOTIF_KEY, currentKey)
+        putString(sharedPrefs, SharedPrefsManager.LAST_NOTIF_TITLE, currentTitle)
+        putString(sharedPrefs, SharedPrefsManager.LAST_NOTIF_TEXT, currentText)
         notificationRepositoryImpl.addNotif(
             context,
             notifEntity

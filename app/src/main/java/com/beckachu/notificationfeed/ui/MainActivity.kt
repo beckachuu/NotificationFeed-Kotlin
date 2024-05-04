@@ -18,9 +18,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.beckachu.notificationfeed.data.entities.AppEntity
 import com.beckachu.notificationfeed.domain.notif.NotificationListener
 import com.beckachu.notificationfeed.navigation.NavGraph
@@ -39,7 +37,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val permissionViewModel: PermissionViewModel by viewModels()
-    private val googleAuthUIClient by lazy {
+    private val googleAuthUiClient by lazy {
         GoogleAuthUIClient(
             context = applicationContext,
             oneTapClient = Identity.getSignInClient(applicationContext)
@@ -90,23 +88,22 @@ class MainActivity : ComponentActivity() {
         val appListViewModel: AppListViewModel = hiltViewModel()
         val appList = appListViewModel.appList.observeAsState(emptyList<AppEntity>())
 
-        val viewModel = viewModel<SignInViewModel>()
+        val signInViewModel: SignInViewModel by viewModels()
         val navController = rememberNavController()
         NavGraph(navController)
 
         val notifListViewModel: NotifListViewModel = hiltViewModel()
-        val notifListFlow = notifListViewModel.notifList.collectAsLazyPagingItems()
 
-        val state by viewModel.state.collectAsStateWithLifecycle()
+        val state by signInViewModel.state.collectAsStateWithLifecycle()
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartIntentSenderForResult(),
             onResult = { result ->
                 if (result.resultCode == RESULT_OK) {
                     lifecycleScope.launch {
-                        val signInResult = googleAuthUIClient.signInWithIntent(
+                        val signInResult = googleAuthUiClient.signInWithIntent(
                             intent = result.data ?: return@launch
                         )
-                        viewModel.onSignInResult(signInResult)
+                        signInViewModel.onSignInResult(signInResult)
                     }
                 }
             }
@@ -117,11 +114,10 @@ class MainActivity : ComponentActivity() {
             appList.value,
             navController,
             notifListViewModel,
-            notifListFlow,
             state,
             onSignInClick = {
                 lifecycleScope.launch {
-                    val signInIntentSender = googleAuthUIClient.signIn()
+                    val signInIntentSender = googleAuthUiClient.signIn()
                     launcher.launch(
                         IntentSenderRequest.Builder(
                             signInIntentSender ?: return@launch
@@ -129,7 +125,7 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             },
-            googleAuthUIClient.getSignedInUser(),
+            googleAuthUiClient.getSignedInUser(),
             applicationContext
         )
 

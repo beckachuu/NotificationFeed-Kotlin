@@ -15,10 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.beckachu.notificationfeed.Const
 import com.beckachu.notificationfeed.data.entities.AppEntity
-import com.beckachu.notificationfeed.data.entities.NotificationEntity
 import com.beckachu.notificationfeed.ui.appbar.AppBar
 import com.beckachu.notificationfeed.ui.notification.NotificationModelList
 import com.beckachu.notificationfeed.ui.sign_in.SignInState
@@ -32,7 +31,6 @@ fun NavigationPane(
     appList: List<AppEntity?>?,
     navController: NavHostController,
     notifListViewModel: NotifListViewModel,
-    notifList: LazyPagingItems<NotificationEntity>,
     state: SignInState,
     onSignInClick: () -> Unit,
     userData: UserData?,
@@ -40,6 +38,7 @@ fun NavigationPane(
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val maxDrawerWidth = screenWidth * Const.NAV_MENU_WIDTH
+    val notifList = notifListViewModel.notifList.collectAsLazyPagingItems()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
