@@ -46,7 +46,7 @@ fun DrawerContent(
     LazyColumn {
         item {
             // User info section
-            UserInfoPanel(state, onSignInClick, userData, Modifier.fillMaxWidth())
+            UserInfoPanel(state, onSignInClick, onSignOutClick, userData, Modifier.fillMaxWidth())
 
             ShortDivider()
 

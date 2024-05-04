@@ -2,13 +2,20 @@ package com.beckachu.notificationfeed.ui.nav_menu
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,29 +36,37 @@ import com.beckachu.notificationfeed.ui.sign_in.UserData
 fun UserInfoPanel(
     state: SignInState,
     onSignInClick: () -> Unit,
+    onSignOutClick: () -> Unit,
     user: UserData?,
     modifier: Modifier
 ) {
-    Spacer(modifier = Modifier.height(Const.VERTICAL_PADDING))
-
+    Spacer(modifier = Modifier.height(Const.TOP_PADDING))
     if (state.isSignInSuccessful) {
-        Column(modifier = modifier, horizontalAlignment = Alignment.Start) {
+        Row(
+            modifier = modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             if (user != null) {
-                AsyncImage(
-                    model = user.profilePictureUrl,
-                    contentDescription = "Profile pic",
-                    modifier = Modifier
-                        .padding(start = Const.LEFT_PADDING)
-                        .size(40.dp)
-                        .clip(CircleShape)
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = "${user.username}",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier
-                        .padding(start = Const.LEFT_PADDING)
-                )
+                Column(horizontalAlignment = Alignment.Start) {
+                    AsyncImage(
+                        model = user.profilePictureUrl,
+                        contentDescription = "Profile pic",
+                        modifier = Modifier
+                            .padding(start = Const.LEFT_PADDING)
+                            .size(40.dp)
+                            .clip(CircleShape)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = "${user.username}",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier
+                            .padding(start = Const.LEFT_PADDING)
+                    )
+                }
+                IconButton(onClick = onSignOutClick) {
+                    Icon(Icons.Default.ExitToApp, contentDescription = "Sign Out")
+                }
             }
         }
     } else if (state.signInError == null) {

@@ -94,7 +94,7 @@ class MainActivity : ComponentActivity() {
 
         val notifListViewModel: NotifListViewModel = hiltViewModel()
 
-        val state by signInViewModel.state.collectAsStateWithLifecycle()
+        val signInState by signInViewModel.state.collectAsStateWithLifecycle()
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartIntentSenderForResult(),
             onResult = { result ->
@@ -114,7 +114,7 @@ class MainActivity : ComponentActivity() {
             appList.value,
             navController,
             notifListViewModel,
-            state,
+            signInState,
             onSignInClick = {
                 lifecycleScope.launch {
                     val signInIntentSender = googleAuthUiClient.signIn()
@@ -123,6 +123,12 @@ class MainActivity : ComponentActivity() {
                             signInIntentSender ?: return@launch
                         ).build()
                     )
+                }
+            },
+            onSignOutClick = {
+                lifecycleScope.launch {
+                    googleAuthUiClient.signOut()
+                    signInViewModel.resetState()
                 }
             },
             googleAuthUiClient.getSignedInUser(),

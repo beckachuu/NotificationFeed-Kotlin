@@ -9,6 +9,7 @@ object Const {
     val PAGE_SIZE = 40
 
     // Navigation menu stuff
+    val TOP_PADDING = 24.dp
     val LEFT_PADDING = 21.dp
     val VERTICAL_PADDING = 16.dp
     val NAV_MENU_WIDTH = 0.7f

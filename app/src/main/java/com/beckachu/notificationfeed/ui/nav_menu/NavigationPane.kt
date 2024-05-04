@@ -33,6 +33,7 @@ fun NavigationPane(
     notifListViewModel: NotifListViewModel,
     state: SignInState,
     onSignInClick: () -> Unit,
+    onSignOutClick: () -> Unit,
     userData: UserData?,
     context: Context
 ) {
@@ -55,6 +56,7 @@ fun NavigationPane(
                         navController,
                         state,
                         onSignInClick,
+                        onSignOutClick,
                         userData,
                         notifListViewModel
                     )

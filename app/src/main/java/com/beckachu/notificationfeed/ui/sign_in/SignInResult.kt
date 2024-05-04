@@ -1,7 +1,7 @@
 package com.beckachu.notificationfeed.ui.sign_in
 
 data class SignInResult(
-    val data: com.beckachu.notificationfeed.ui.sign_in.UserData?,
+    val data: UserData?,
     val errorMessage: String?
 )
 
