@@ -15,6 +15,10 @@ object Const {
     val NAV_MENU_WIDTH = 0.7f
     val DIVIDER_WIDTH = 0.8f
 
+    // Collections
+    val users = "users"
+    val notifCollection = "notificationCollection"
+
     const val ALL_NOTI = "%"
     const val MAX_FRAGMENT_CACHE = 5
 

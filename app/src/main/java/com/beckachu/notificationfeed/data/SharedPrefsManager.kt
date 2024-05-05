@@ -16,6 +16,7 @@ object SharedPrefsManager {
 
     // Sign-in states
     const val SIGN_IN_SUCCESSFUL = "isSignInSuccessful"
+    const val USER_ID = "userId"
     const val SIGN_IN_ERROR = "signInError"
 
     fun getBool(prefs: SharedPreferences, key: String?, defaultValue: Boolean): Boolean {

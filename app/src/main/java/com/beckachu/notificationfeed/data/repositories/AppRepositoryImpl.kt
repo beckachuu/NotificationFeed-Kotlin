@@ -73,20 +73,5 @@ class AppRepositoryImpl @Inject constructor(
         }
     }
 
-    /**
-     * For synchronizing remote and local data
-     *
-     *
-     * TODO: when remote is implemented
-     */
-    fun pullFromRemote() {
-//        val userData = networkDataSource.fetchUserData()
-//        localDataSource.saveUserData(userData)
-    }
-
-    fun pushToRemote() {
-//        val userData = networkDataSource.fetchUserData()
-//        localDataSource.saveUserData(userData)
-    }
 }
 

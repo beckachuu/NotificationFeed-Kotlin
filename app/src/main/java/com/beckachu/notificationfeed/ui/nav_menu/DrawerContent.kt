@@ -39,6 +39,7 @@ fun DrawerContent(
     navController: NavHostController,
     state: SignInState,
     onSignInClick: () -> Unit,
+    onSignOutClick: () -> Unit,
     userData: UserData?,
     notifListViewModel: NotifListViewModel,
 ) {

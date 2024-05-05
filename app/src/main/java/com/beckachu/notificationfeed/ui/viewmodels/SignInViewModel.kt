@@ -48,11 +48,15 @@ class SignInViewModel @Inject constructor(
         )
         _state.value = newState
         saveSignInState(newState)
+
+        putString(sharedPrefs, SharedPrefsManager.USER_ID, result.data?.userId)
     }
 
     fun resetState() {
         val newState = SignInState()
         _state.value = newState
         saveSignInState(newState)
+
+        putString(sharedPrefs, SharedPrefsManager.USER_ID, null)
     }
 }

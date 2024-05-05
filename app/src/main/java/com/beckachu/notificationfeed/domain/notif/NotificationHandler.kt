@@ -18,7 +18,7 @@ import com.beckachu.notificationfeed.data.repositories.NotificationRepositoryImp
 
 class NotifHandler internal constructor(private val context: Context) {
     private val notificationRepositoryImpl: NotificationRepositoryImpl =
-        NotifRepoModule.provideAppRepository(context)
+        NotifRepoModule.provideNotifRepository(context)
     private val sharedPrefs: SharedPreferences = context.applicationContext.getSharedPreferences(
         SharedPrefsManager.DEFAULT_NAME,
         Context.MODE_PRIVATE
@@ -52,9 +52,12 @@ class NotifHandler internal constructor(private val context: Context) {
         putString(sharedPrefs, SharedPrefsManager.LAST_NOTIF_KEY, currentKey)
         putString(sharedPrefs, SharedPrefsManager.LAST_NOTIF_TITLE, currentTitle)
         putString(sharedPrefs, SharedPrefsManager.LAST_NOTIF_TEXT, currentText)
+
+        val userId = getString(sharedPrefs, SharedPrefsManager.USER_ID, null)
         notificationRepositoryImpl.addNotif(
             context,
-            notifEntity
+            notifEntity,
+            userId
         )
 
         // Update new notification count

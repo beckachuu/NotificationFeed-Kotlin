@@ -9,6 +9,8 @@ import com.beckachu.notificationfeed.data.entities.AppEntity
 import com.beckachu.notificationfeed.data.entities.NotificationEntity
 import com.beckachu.notificationfeed.data.local.dao.AppDao
 import com.beckachu.notificationfeed.data.local.dao.NotificationDao
+import com.beckachu.notificationfeed.data.remote.NotificationRemoteDataSource
+import com.google.firebase.firestore.FirebaseFirestore
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
@@ -34,6 +36,7 @@ import java.util.concurrent.Future
 class NotificationRepositoryImpl(
     private val executor: ExecutorService,
     private val notifDao: NotificationDao,
+    private val notifRemoteDataSource: NotificationRemoteDataSource,
     private val appDao: AppDao,
 ) {
     fun getAllNotifications() = Pager(PagingConfig(pageSize = Const.PAGE_SIZE)) {
@@ -45,34 +48,23 @@ class NotificationRepositoryImpl(
             notifDao.getAllByApp(packageName)
         }.flow
 
-    fun addNotif(context: Context, notificationEntity: NotificationEntity) {
+    fun addNotif(context: Context, notificationEntity: NotificationEntity, userId: String?) {
         executor.execute {
             synchronized(Const.LOCK_OBJECT) {
                 if (!notificationEntity.isGroupSummary) {
+                    val appEntity = AppEntity(context, notificationEntity.packageName)
                     notifDao.insert(notificationEntity)
-                    appDao.insertApp(AppEntity(context, notificationEntity.packageName))
+                    appDao.insertApp(appEntity)
+
+                    if (userId != null) {
+                        notifRemoteDataSource.pushToRemote(userId, notificationEntity)
+                    }
                 }
             }
         }
     }
 
-    fun deleteNoti(id: String): Int {
-        val future: Future<Int> = executor.submit(Callable {
-            synchronized(Const.LOCK_OBJECT) {
-                val intId = id.toInt()
-                return@Callable notifDao.delete(intId)
-            }
-        })
-        return try {
-            future.get()
-        } catch (e: InterruptedException) {
-            0
-        } catch (e: ExecutionException) {
-            0
-        }
-    }
-
-    fun deleteNoti(id: Int): Int {
+    fun deleteNotif(id: Int): Int {
         val future: Future<Int> = executor.submit(Callable {
             synchronized(Const.LOCK_OBJECT) {
                 return@Callable notifDao.delete(id)
@@ -87,15 +79,22 @@ class NotificationRepositoryImpl(
         }
     }
 
-    /**
-     * For synchronizing remote and local data
-     *
-     *
-     * TODO: when remote is implemented
-     */
-    fun synchronize() {
-//        val userData = networkDataSource.fetchUserData()
-//        localDataSource.saveUserData(userData)
+
+    fun pullFromRemote(userId: String, db: FirebaseFirestore) {
+        db.collection("users")
+            .document(userId)
+            .collection("NotificationEntity")
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    // Convert each document to a NotificationEntity and update the local database
+                    val notificationEntity = document.toObject(NotificationEntity::class.java)
+                    executor.execute {
+                        notifDao.insert(notificationEntity)
+                    }
+                }
+            }
     }
+
 }
 
