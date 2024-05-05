@@ -18,10 +18,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.beckachu.notificationfeed.data.entities.AppEntity
 import com.beckachu.notificationfeed.domain.notif.NotificationListener
-import com.beckachu.notificationfeed.navigation.NavGraph
 import com.beckachu.notificationfeed.ui.dialogs.PermissionDialog
 import com.beckachu.notificationfeed.ui.nav_menu.NavigationPane
 import com.beckachu.notificationfeed.ui.sign_in.GoogleAuthUIClient
@@ -33,6 +33,7 @@ import com.beckachu.notificationfeed.ui.viewmodels.SignInViewModel
 import com.google.android.gms.auth.api.identity.Identity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -50,18 +51,9 @@ class MainActivity : ComponentActivity() {
             NotifFeedTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
                     startService(Intent(this, NotificationListener::class.java))
-                    AskPermission()
-                }
-            }
-        }
-    }
 
-    override fun onResume() {
-        super.onResume()
-        setContent {
-            NotifFeedTheme {
-                Surface(color = MaterialTheme.colorScheme.background) {
-                    AskPermission()
+                    val navController = rememberNavController()
+                    AskPermission(navController)
                 }
             }
         }
@@ -69,28 +61,25 @@ class MainActivity : ComponentActivity() {
 
 
     @Composable
-    fun AskPermission() {
+    fun AskPermission(navController: NavHostController) {
         if (!permissionViewModel.isNotificationServiceEnabled()) {
             PermissionDialog(
                 dialogText = "You need to enable the permission to use this app. Please enable the Notification access permission to make the app work.",
                 onConfirm = permissionViewModel::openNotificationAccessSettings
             )
         } else {
-            MainLayout()
+            MainLayout(navController)
         }
     }
 
-
     @Composable
-    fun MainLayout() {
+    fun MainLayout(navController: NavHostController) {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
 
         val appListViewModel: AppListViewModel = hiltViewModel()
         val appList = appListViewModel.appList.observeAsState(emptyList<AppEntity>())
 
         val signInViewModel: SignInViewModel by viewModels()
-        val navController = rememberNavController()
-        NavGraph(navController)
 
         val notifListViewModel: NotifListViewModel = hiltViewModel()
 

@@ -15,11 +15,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.beckachu.notificationfeed.Const
 import com.beckachu.notificationfeed.data.entities.AppEntity
+import com.beckachu.notificationfeed.navigation.Routes
 import com.beckachu.notificationfeed.ui.appbar.AppBar
 import com.beckachu.notificationfeed.ui.notification.NotificationModelList
+import com.beckachu.notificationfeed.ui.screens.AnalyticsScreen
+import com.beckachu.notificationfeed.ui.screens.ImportantScreen
+import com.beckachu.notificationfeed.ui.screens.SettingsScreen
+import com.beckachu.notificationfeed.ui.screens.TrashScreen
 import com.beckachu.notificationfeed.ui.sign_in.SignInState
 import com.beckachu.notificationfeed.ui.sign_in.UserData
 import com.beckachu.notificationfeed.ui.viewmodels.NotifListViewModel
@@ -72,7 +79,15 @@ fun NavigationPane(
 
             content = { innerPadding ->
                 Box(modifier = Modifier.padding(innerPadding)) {
-                    NotificationModelList(notifList, context)
+                    NavHost(navController, startDestination = Routes.Home.route) {
+                        composable(Routes.Home.route) {
+                            NotificationModelList(notifList, context)
+                        }
+                        composable(Routes.Analytics.route) { AnalyticsScreen() }
+                        composable(Routes.Important.route) { ImportantScreen() }
+                        composable(Routes.Settings.route) { SettingsScreen() }
+                        composable(Routes.Trash.route) { TrashScreen() }
+                    }
                 }
             }
         )

@@ -56,6 +56,12 @@ fun DrawerContent(
                 icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
                 selected = false,
                 onClick = {
+                    navController.navigate(Routes.Home.route) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+
                     notifListViewModel.selectedPackageName.value = null
                     notifListViewModel.selectedAppName.value = null
                 }
@@ -64,25 +70,53 @@ fun DrawerContent(
                 label = { Text(text = "Analytics") },
                 icon = { Icon(Icons.Filled.Create, contentDescription = "Analytics") },
                 selected = false,
-                onClick = { navController.navigate(Routes.Analytics.route) }
+                onClick = {
+                    navController.navigate(Routes.Analytics.route) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                    notifListViewModel.selectedAppName.value = "Analytics"
+                }
             )
             NavigationDrawerItem(
                 label = { Text(text = "Important") },
                 icon = { Icon(Icons.Filled.Star, contentDescription = "Important") },
                 selected = false,
-                onClick = { navController.navigate(Routes.Important.route) }
+                onClick = {
+                    navController.navigate(Routes.Important.route) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                    notifListViewModel.selectedAppName.value = "Important"
+                }
             )
             NavigationDrawerItem(
                 label = { Text(text = "Settings") },
                 icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") },
                 selected = false,
-                onClick = { navController.navigate(Routes.Settings.route) }
+                onClick = {
+                    navController.navigate(Routes.Settings.route) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                    notifListViewModel.selectedAppName.value = "Settings"
+                }
             )
             NavigationDrawerItem(
                 label = { Text(text = "Trash") },
                 icon = { Icon(Icons.Filled.Delete, contentDescription = "Trash") },
                 selected = false,
-                onClick = { navController.navigate(Routes.Trash.route) }
+                onClick = {
+                    navController.navigate(Routes.Trash.route) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                    notifListViewModel.selectedAppName.value = "Trash"
+                }
             )
 
             ShortDivider()
@@ -131,6 +165,12 @@ fun DrawerContent(
                 },
                 selected = false,
                 onClick = {
+                    navController.navigate(Routes.Trash.route) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+
                     notifListViewModel.selectedPackageName.value = packageName
                     notifListViewModel.selectedAppName.value = appName
                 }
