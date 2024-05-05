@@ -1,10 +1,14 @@
 package com.beckachu.notificationfeed.ui.nav_menu
 
-import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
@@ -16,9 +20,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -30,7 +35,8 @@ import com.beckachu.notificationfeed.ui.components.ShortDivider
 import com.beckachu.notificationfeed.ui.sign_in.SignInState
 import com.beckachu.notificationfeed.ui.sign_in.UserData
 import com.beckachu.notificationfeed.ui.viewmodels.NotifListViewModel
-import kotlin.math.roundToInt
+import com.beckachu.notificationfeed.utils.Util
+import com.beckachu.notificationfeed.utils.Util.toImageBitmap
 
 @Composable
 fun DrawerContent(
@@ -135,34 +141,33 @@ fun DrawerContent(
         // App list section
         items(appList?.size ?: 0) { index ->
             val appName = appList?.get(index)?.appName
-            val appIcon = appList?.get(index)?.iconByte?.let {
-                val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-                bitmap.asImageBitmap()
-            }
             val packageName = appList?.get(index)?.packageName
+            val appIcon = Util.getAppIconFromPackage(LocalContext.current, packageName)
 
             NavigationDrawerItem(
                 label = {
-                    Text(
-                        text = appName ?: "",
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                icon = {
-                    appIcon?.let {
-                        Icon(
-                            bitmap = it,
-                            contentDescription = appName,
-                            modifier = Modifier.size(
-                                minOf(
-                                    screenWidth.value.roundToInt(),
-                                    LocalConfiguration.current.screenHeightDp
-                                ).dp * 0.1f
-                            )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (appIcon != null) {
+                            appIcon.toImageBitmap()?.let {
+                                Image(
+                                    bitmap = it,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .clip(CircleShape)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text(
+                            text = appName ?: "",
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 },
+
                 selected = false,
                 onClick = {
                     navController.navigate(Routes.Trash.route) {
