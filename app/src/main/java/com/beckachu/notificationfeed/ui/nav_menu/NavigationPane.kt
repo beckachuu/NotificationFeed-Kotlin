@@ -85,7 +85,7 @@ fun NavigationPane(
                         }
                         composable(Routes.Analytics.route) { AnalyticsScreen() }
                         composable(Routes.Important.route) { ImportantScreen() }
-                        composable(Routes.Settings.route) { SettingsScreen() }
+                        composable(Routes.Settings.route) { SettingsScreen(appList) }
                         composable(Routes.Trash.route) { TrashScreen() }
                     }
                 }

@@ -13,6 +13,7 @@ object SharedPrefsManager {
 
     const val APP_LIST = "APP_LIST"
     const val RECORD_CHECKED = "RECORD_PREF"
+    const val AUTO_VOLUME = "AUTO_VOLUME"
 
     // Sign-in states
     const val SIGN_IN_SUCCESSFUL = "isSignInSuccessful"

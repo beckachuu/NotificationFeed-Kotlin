@@ -170,7 +170,7 @@ fun DrawerContent(
 
                 selected = false,
                 onClick = {
-                    navController.navigate(Routes.Trash.route) {
+                    navController.navigate(Routes.Home.route) {
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
                         restoreState = true

@@ -13,7 +13,8 @@ object Const {
     val LEFT_PADDING = 21.dp
     val VERTICAL_PADDING = 16.dp
     val NAV_MENU_WIDTH = 0.7f
-    val DIVIDER_WIDTH = 0.8f
+    val ROW_HEIGHT = 48.dp
+    val BIG_ROW_HEIGHT = 52.dp
 
     // Collections
     val users = "users"
