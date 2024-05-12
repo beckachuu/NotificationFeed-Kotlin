@@ -40,7 +40,7 @@ import java.time.ZoneId
 fun NotificationModelList(notifications: LazyPagingItems<NotificationEntity>, context: Context) {
     val groupedNotifications = notifications.itemSnapshotList.items
         .groupBy { notification ->
-            val date = Instant.ofEpochMilli(notification.systemTime)
+            val date = Instant.ofEpochMilli(notification.postTime)
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate()
             date.format(Util.dateFormat)
@@ -83,20 +83,16 @@ fun NotificationModelCard(notification: NotificationEntity?, context: Context) {
                     .animateContentSize()
                     .padding(12.dp)
             ) {
-                //            Text(text = notification.date)
-
                 val appIcon = Util.getAppIconFromPackage(context, notification.packageName)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (appIcon != null) {
-                        appIcon.toImageBitmap()?.let {
-                            Image(
-                                bitmap = it,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(30.dp)
-                                    .clip(CircleShape)
-                            )
-                        }
+                    appIcon?.toImageBitmap()?.let {
+                        Image(
+                            bitmap = it,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(30.dp)
+                                .clip(CircleShape)
+                        )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
 

@@ -1,5 +1,6 @@
 package com.beckachu.notificationfeed.ui.nav_menu
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,7 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -35,8 +36,6 @@ import com.beckachu.notificationfeed.ui.components.ShortDivider
 import com.beckachu.notificationfeed.ui.sign_in.SignInState
 import com.beckachu.notificationfeed.ui.sign_in.UserData
 import com.beckachu.notificationfeed.ui.viewmodels.NotifListViewModel
-import com.beckachu.notificationfeed.utils.Util
-import com.beckachu.notificationfeed.utils.Util.toImageBitmap
 
 @Composable
 fun DrawerContent(
@@ -140,23 +139,22 @@ fun DrawerContent(
 
         // App list section
         items(appList?.size ?: 0) { index ->
-            val appName = appList?.get(index)?.appName
-            val packageName = appList?.get(index)?.packageName
-            val appIcon = Util.getAppIconFromPackage(LocalContext.current, packageName)
+            val app = appList?.get(index)
+            val appName = app?.appName
+            val packageName = app?.packageName
+            val appIcon = app?.iconByte?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
 
             NavigationDrawerItem(
                 label = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (appIcon != null) {
-                            appIcon.toImageBitmap()?.let {
-                                Image(
-                                    bitmap = it,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(30.dp)
-                                        .clip(CircleShape)
-                                )
-                            }
+                            Image(
+                                bitmap = appIcon.asImageBitmap(),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .clip(CircleShape)
+                            )
                         }
                         Spacer(modifier = Modifier.width(8.dp))
 

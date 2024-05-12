@@ -56,6 +56,7 @@ class NotifHandler internal constructor(private val context: Context) {
         val userId = getString(sharedPrefs, SharedPrefsManager.USER_ID, null)
         notificationRepositoryImpl.addNotif(
             context,
+            sharedPrefs,
             notifEntity,
             userId
         )
