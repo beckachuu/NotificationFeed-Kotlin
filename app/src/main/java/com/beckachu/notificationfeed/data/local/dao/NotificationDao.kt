@@ -16,18 +16,15 @@ import com.beckachu.notificationfeed.data.entities.NotificationEntity
  */
 @Dao
 interface NotificationDao {
-    @Query("SELECT * FROM notificationentity ORDER BY nid DESC")
+    @Query("SELECT * FROM notificationentity ORDER BY postTime DESC")
     fun getAllNotifications(): PagingSource<Int, NotificationEntity>
 
-    @Query("SELECT * FROM notificationentity WHERE packageName LIKE :packageName ORDER BY nid DESC")
+    @Query("SELECT * FROM notificationentity WHERE packageName LIKE :packageName ORDER BY postTime DESC")
     fun getAllByApp(packageName: String?): PagingSource<Int, NotificationEntity>
-
-    @Query("SELECT * FROM notificationentity WHERE nid = :id")
-    fun getById(id: Int): NotificationEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(notificationentity: NotificationEntity): Long
 
-    @Query("DELETE FROM notificationentity WHERE nid = :id")
-    fun delete(id: Int): Int
+    @Query("DELETE FROM notificationentity WHERE notifKey = :key")
+    fun delete(key: String): Int
 }

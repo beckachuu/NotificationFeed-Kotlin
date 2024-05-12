@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.beckachu.notificationfeed.data.entities.AppEntity
 import com.beckachu.notificationfeed.data.entities.NotificationEntity
 import com.beckachu.notificationfeed.data.local.dao.AppDao
@@ -11,9 +13,8 @@ import com.beckachu.notificationfeed.data.local.dao.NotificationDao
 
 
 @Database(
-    version = 1,
+    version = 2,
     entities = [NotificationEntity::class, AppEntity::class],
-    autoMigrations = [],
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -36,10 +37,65 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java, DATABASE_NAME
                 )
+                    .addMigrations(MIGRATION_1_2)
                     .build()
             }
             return db as AppDatabase
         }
+
+        private val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+            CREATE TABLE new_NotificationEntity (
+                notifKey TEXT NOT NULL,
+                packageName TEXT NOT NULL,
+                postTime INTEGER PRIMARY KEY NOT NULL,
+                isClearable INTEGER NOT NULL,
+                isOngoing INTEGER NOT NULL,
+                flags INTEGER NOT NULL,
+                ringerMode INTEGER NOT NULL,
+                isScreenOn INTEGER NOT NULL,
+                batteryLevel INTEGER NOT NULL,
+                batteryStatus TEXT,
+                "group" TEXT,
+                isGroupSummary INTEGER NOT NULL,
+                category TEXT,
+                actionCount INTEGER NOT NULL,
+                isLocalOnly INTEGER NOT NULL,
+                priority INTEGER NOT NULL,
+                tag TEXT,
+                sortKey TEXT,
+                visibility INTEGER NOT NULL,
+                color INTEGER NOT NULL,
+                interruptionFilter INTEGER NOT NULL,
+                listenerHints INTEGER NOT NULL,
+                isMatchesInterruptionFilter INTEGER NOT NULL,
+                textInfo TEXT,
+                textSub TEXT,
+                textSummary TEXT,
+                textLines TEXT,
+                appName TEXT,
+                tickerText TEXT,
+                title TEXT NOT NULL,
+                titleBig TEXT,
+                text TEXT NOT NULL,
+                textBig TEXT NOT NULL
+            )
+        """
+                )
+                db.execSQL(
+                    """
+            INSERT INTO new_NotificationEntity (notifKey, packageName, postTime, isClearable, isOngoing, flags, ringerMode, isScreenOn, batteryLevel, batteryStatus, "group", isGroupSummary, category, actionCount, isLocalOnly, priority, tag, sortKey, visibility, color, interruptionFilter, listenerHints, isMatchesInterruptionFilter, textInfo, textSub, textSummary, textLines, appName, tickerText, title, titleBig, text, textBig)
+            SELECT key, packageName, postTime, isClearable, isOngoing, flags, ringerMode, isScreenOn, batteryLevel, batteryStatus, "group", isGroupSummary, category, actionCount, isLocalOnly, priority, tag, sortKey, visibility, color, interruptionFilter, listenerHints, isMatchesInterruptionFilter, textInfo, textSub, textSummary, textLines, appName, tickerText, title, titleBig, text, textBig
+            FROM NotificationEntity
+        """
+                )
+                db.execSQL("DROP TABLE NotificationEntity")
+                db.execSQL("ALTER TABLE new_NotificationEntity RENAME TO NotificationEntity")
+            }
+        }
+
     }
 }
 

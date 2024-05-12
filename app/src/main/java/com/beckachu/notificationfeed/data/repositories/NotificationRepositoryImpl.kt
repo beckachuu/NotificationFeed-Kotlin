@@ -2,17 +2,17 @@ package com.beckachu.notificationfeed.data.repositories
 
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import com.beckachu.notificationfeed.Const
+import com.beckachu.notificationfeed.data.SharedPrefsManager
 import com.beckachu.notificationfeed.data.entities.AppEntity
 import com.beckachu.notificationfeed.data.entities.NotificationEntity
 import com.beckachu.notificationfeed.data.local.dao.AppDao
 import com.beckachu.notificationfeed.data.local.dao.NotificationDao
 import com.beckachu.notificationfeed.data.remote.NotificationRemoteDataSource
-import com.google.firebase.firestore.FirebaseFirestore
 import java.util.concurrent.Callable
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
 
@@ -48,53 +48,64 @@ class NotificationRepositoryImpl(
             notifDao.getAllByApp(packageName)
         }.flow
 
-    fun addNotif(context: Context, notificationEntity: NotificationEntity, userId: String?) {
+    fun addNotif(
+        context: Context, sharedPref: SharedPreferences,
+        notificationEntity: NotificationEntity, userId: String?
+    ) {
         executor.execute {
             synchronized(Const.LOCK_OBJECT) {
                 if (!notificationEntity.isGroupSummary) {
                     val appEntity = AppEntity(context, notificationEntity.packageName)
                     notifDao.insert(notificationEntity)
+
                     appDao.insertApp(appEntity)
+                    val packageName = notificationEntity.packageName
+                    val checkNewApp = SharedPrefsManager.getBool(
+                        sharedPref,
+                        SharedPrefsManager.CHECK_NEW_APP,
+                        false
+                    )
+                    val checkedAppList =
+                        SharedPrefsManager.getStringSet(sharedPref, SharedPrefsManager.APP_LIST)
+                    if (checkNewApp && !checkedAppList.contains(packageName)) {
+                        checkedAppList.add(packageName)
+                        sharedPref
+                            .edit()
+                            .putStringSet(SharedPrefsManager.APP_LIST, checkedAppList)
+                            .apply()
+                    }
 
                     if (userId != null) {
-                        notifRemoteDataSource.pushToRemote(userId, notificationEntity)
+                        notifRemoteDataSource.push(userId, notificationEntity)
                     }
                 }
             }
         }
     }
 
-    fun deleteNotif(id: Int): Int {
+    fun deleteNotif(key: String): Int {
         val future: Future<Int> = executor.submit(Callable {
             synchronized(Const.LOCK_OBJECT) {
-                return@Callable notifDao.delete(id)
+                return@Callable notifDao.delete(key)
             }
         })
         return try {
             future.get()
         } catch (e: InterruptedException) {
             0
-        } catch (e: ExecutionException) {
-            0
         }
     }
 
 
-    fun pullFromRemote(userId: String, db: FirebaseFirestore) {
-        db.collection("users")
-            .document(userId)
-            .collection("NotificationEntity")
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    // Convert each document to a NotificationEntity and update the local database
-                    val notificationEntity = document.toObject(NotificationEntity::class.java)
-                    executor.execute {
-                        notifDao.insert(notificationEntity)
-                    }
-                }
-            }
+    fun pullAndSave(context: Context, userId: String?): Boolean {
+        return if (userId != null) {
+            notifRemoteDataSource.pullAll(context, notifDao, appDao, userId)
+            true
+        } else {
+            false
+        }
     }
+
 
 }
 

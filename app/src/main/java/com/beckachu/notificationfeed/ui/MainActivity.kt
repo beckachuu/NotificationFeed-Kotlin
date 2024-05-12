@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
                 dialogText = "You need to enable the permission to use this app. Please enable the Notification access permission to make the app work.",
                 onConfirm = permissionViewModel::openNotificationAccessSettings,
                 onDismissRequest = { showDialog.value = false }
-            )
+                )
         } else {
             MainLayout(navController)
         }

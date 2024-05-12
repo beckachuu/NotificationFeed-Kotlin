@@ -10,21 +10,20 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.beckachu.notificationfeed.domain.notif.NotificationListener
 import com.beckachu.notificationfeed.utils.Util
+import com.google.firebase.firestore.IgnoreExtraProperties
 
 /**
  * This class represents the Entity stored in the database
  */
 @Entity
+@IgnoreExtraProperties
 data class NotificationEntity(
-    @PrimaryKey(autoGenerate = true)
-    val nid: Long = 0,
-
-    val packageName: String,
+    @PrimaryKey
     val postTime: Long = 0,
-    var systemTime: Long = 0,
+    val packageName: String = "",
+
     var isClearable: Boolean = false,
     var isOngoing: Boolean = false,
-    var number: Int = 0,
     var flags: Int = 0,
 
     // Device
@@ -47,7 +46,7 @@ data class NotificationEntity(
     var tag: String? = null,
 
     // 20
-    var key: String? = null,
+    val notifKey: String = "",
     var sortKey: String? = null,
 
     // 21
@@ -74,16 +73,14 @@ data class NotificationEntity(
     constructor(context: Context, sbn: StatusBarNotification) : this(
         packageName = sbn.packageName,
         postTime = sbn.postTime,
-        systemTime = System.currentTimeMillis(),
         isClearable = sbn.isClearable,
         isOngoing = sbn.isOngoing,
         tag = sbn.tag,
-        key = sbn.key,
+        notifKey = sbn.key,
         sortKey = sbn.notification.sortKey,
         flags = sbn.notification.flags,
         visibility = sbn.notification.visibility,
         color = sbn.notification.color,
-        number = -1,
 
         // Compat
         group = NotificationCompat.getGroup(sbn.notification),
@@ -106,7 +103,7 @@ data class NotificationEntity(
         interruptionFilter = NotificationListener.interruptionFilter
         val ranking = Ranking()
         val rankingMap: NotificationListenerService.RankingMap? = NotificationListener.ranking
-        if (rankingMap != null && rankingMap.getRanking(key, ranking)) {
+        if (rankingMap != null && rankingMap.getRanking(notifKey, ranking)) {
             isMatchesInterruptionFilter = ranking.matchesInterruptionFilter()
         }
 
