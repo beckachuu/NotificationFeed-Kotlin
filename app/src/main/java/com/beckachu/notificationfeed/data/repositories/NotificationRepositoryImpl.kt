@@ -40,7 +40,7 @@ class NotificationRepositoryImpl(
     private val appDao: AppDao,
 ) {
     fun getAllNotifications() = Pager(PagingConfig(pageSize = Const.PAGE_SIZE)) {
-        notifDao.getAllNotifications()
+        notifDao.getNotificationPages()
     }.flow
 
     fun getAllNotificationsByApp(packageName: String) =
@@ -83,7 +83,26 @@ class NotificationRepositoryImpl(
         }
     }
 
-    fun deleteNotif(key: String): Int {
+    fun pullAndSave(context: Context, userId: String?): Boolean {
+        return if (userId != null) {
+            notifRemoteDataSource.pullAll(context, notifDao, appDao, userId)
+            true
+        } else {
+            false
+        }
+    }
+
+    fun pushAllToRemote(userId: String?): Boolean {
+        return if (userId != null) {
+            val notifications = notifDao.getAllNotifications()
+            notifRemoteDataSource.pushAll(userId, notifications)
+            true
+        } else {
+            false
+        }
+    }
+
+    fun delete(key: String): Int {
         val future: Future<Int> = executor.submit(Callable {
             synchronized(Const.LOCK_OBJECT) {
                 return@Callable notifDao.delete(key)
@@ -96,16 +115,27 @@ class NotificationRepositoryImpl(
         }
     }
 
+    fun deleteAllFromLocal(): Int {
+        val future: Future<Int> = executor.submit(Callable {
+            synchronized(Const.LOCK_OBJECT) {
+                return@Callable notifDao.deleteAll()
+            }
+        })
+        return try {
+            future.get()
+        } catch (e: InterruptedException) {
+            0
+        }
+    }
 
-    fun pullAndSave(context: Context, userId: String?): Boolean {
+    fun deleteAllFromRemote(userId: String?): Boolean {
         return if (userId != null) {
-            notifRemoteDataSource.pullAll(context, notifDao, appDao, userId)
+            notifRemoteDataSource.deleteAll(userId)
             true
         } else {
             false
         }
     }
-
 
 }
 

@@ -15,13 +15,13 @@ import kotlinx.coroutines.tasks.await
 class NotificationRemoteDataSource(firebaseDb: FirebaseFirestore) {
     private val db: FirebaseFirestore = firebaseDb
 
-    fun push(userId: String, notificationEntity: NotificationEntity) =
+    fun push(userId: String, notification: NotificationEntity) =
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 db.collection(Const.users)
                     .document(userId)
                     .collection(Const.notifCollection)
-                    .add(notificationEntity)
+                    .add(notification)
                     .await()
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -53,7 +53,8 @@ class NotificationRemoteDataSource(firebaseDb: FirebaseFirestore) {
 
     }
 
-    fun removeFromRemote(userId: String, notificationEntity: NotificationEntity) =
+
+    fun deleteOne(userId: String, notificationEntity: NotificationEntity) =
         CoroutineScope(Dispatchers.IO).launch {
             try {
 
@@ -61,5 +62,21 @@ class NotificationRemoteDataSource(firebaseDb: FirebaseFirestore) {
                 e.printStackTrace()
             }
         }
+
+    fun deleteAll(userId: String) = CoroutineScope(Dispatchers.IO).launch {
+        try {
+            val collection = db.collection(Const.users)
+                .document(userId)
+                .collection(Const.notifCollection)
+
+            collection.get().addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot.documents) {
+                    collection.document(document.id).delete()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
 }

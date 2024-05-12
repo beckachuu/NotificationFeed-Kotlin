@@ -17,7 +17,10 @@ import com.beckachu.notificationfeed.data.entities.NotificationEntity
 @Dao
 interface NotificationDao {
     @Query("SELECT * FROM notificationentity ORDER BY postTime DESC")
-    fun getAllNotifications(): PagingSource<Int, NotificationEntity>
+    fun getNotificationPages(): PagingSource<Int, NotificationEntity>
+
+    @Query("SELECT * FROM notificationentity")
+    fun getAllNotifications(): List<NotificationEntity>
 
     @Query("SELECT * FROM notificationentity WHERE packageName LIKE :packageName ORDER BY postTime DESC")
     fun getAllByApp(packageName: String?): PagingSource<Int, NotificationEntity>
@@ -27,4 +30,7 @@ interface NotificationDao {
 
     @Query("DELETE FROM notificationentity WHERE notifKey = :key")
     fun delete(key: String): Int
+
+    @Query("DELETE FROM notificationentity")
+    fun deleteAll(): Int
 }

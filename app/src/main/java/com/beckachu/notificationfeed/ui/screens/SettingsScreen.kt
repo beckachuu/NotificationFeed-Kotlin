@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -56,6 +59,7 @@ fun SettingsScreen(appList: List<AppEntity?>?) {
     var checkNewApp by remember { mutableStateOf(false) }
     checkNewApp = SharedPrefsManager.getBool(sharedPref, SharedPrefsManager.CHECK_NEW_APP, false)
 
+    val confirmDeleteAllDialog = remember { mutableStateOf(false) }
 
     val notificationRepositoryImpl: NotificationRepositoryImpl =
         NotifRepoModule.provideNotifRepository(context)
@@ -77,7 +81,6 @@ fun SettingsScreen(appList: List<AppEntity?>?) {
                         SharedPrefsManager.getString(sharedPref, SharedPrefsManager.USER_ID, null)
                     notificationRepositoryImpl.pullAndSave(context, userId)
                 })
-                .fillMaxWidth()
                 .height(Const.ROW_HEIGHT),
         ) {
             Text(
@@ -85,21 +88,79 @@ fun SettingsScreen(appList: List<AppEntity?>?) {
                 style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.primary)
             )
         }
-//        Row(
-//            verticalAlignment = Alignment.CenterVertically,
-//            modifier = Modifier
-//                .height(Const.ROW_HEIGHT)
-//                .clickable(onClick = {
-//
-//                })
-//                .fillMaxWidth()
-//                .height(Const.ROW_HEIGHT),
-//        ) {
-//            Text(
-//                text = "Push to online storage",
-//                style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.primary)
-//            )
-//        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .height(Const.ROW_HEIGHT)
+                .clickable(onClick = {
+//                    val userId =
+//                        SharedPrefsManager.getString(sharedPref, SharedPrefsManager.USER_ID, null)
+//                    notificationRepositoryImpl.pushAllToRemote(userId)
+                })
+                .height(Const.ROW_HEIGHT),
+        ) {
+            Text(
+                text = "Push to online storage",
+                style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.primary)
+            )
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .height(Const.ROW_HEIGHT)
+                .clickable(onClick = { confirmDeleteAllDialog.value = true })
+                .height(Const.ROW_HEIGHT),
+        ) {
+            Text(
+                text = "Delete ALL",
+                style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.error)
+            )
+        }
+        if (confirmDeleteAllDialog.value) {
+            AlertDialog(
+                onDismissRequest = { confirmDeleteAllDialog.value = false },
+                title = { Text("Confirm Deletion") },
+                text = {
+                    Text(
+                        text = "Where do you want to delete all data? (Click outside this dialog to cancel)",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            notificationRepositoryImpl.deleteAllFromLocal()
+                            confirmDeleteAllDialog.value = false
+                        },
+                    ) {
+                        Text(
+                            text = "Local",
+                        )
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = {
+                            val userId =
+                                SharedPrefsManager.getString(
+                                    sharedPref,
+                                    SharedPrefsManager.USER_ID,
+                                    null
+                                )
+                            notificationRepositoryImpl.deleteAllFromRemote(userId)
+                            confirmDeleteAllDialog.value = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+                    ) {
+                        Text(
+                            text = "Online",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            )
+        }
+
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
