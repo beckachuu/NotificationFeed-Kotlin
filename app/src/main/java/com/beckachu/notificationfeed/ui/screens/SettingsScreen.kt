@@ -75,7 +75,6 @@ fun SettingsScreen(appList: List<AppEntity?>?) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .height(Const.ROW_HEIGHT)
                 .clickable(onClick = {
                     val userId =
                         SharedPrefsManager.getString(sharedPref, SharedPrefsManager.USER_ID, null)
@@ -91,11 +90,10 @@ fun SettingsScreen(appList: List<AppEntity?>?) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .height(Const.ROW_HEIGHT)
                 .clickable(onClick = {
-//                    val userId =
-//                        SharedPrefsManager.getString(sharedPref, SharedPrefsManager.USER_ID, null)
-//                    notificationRepositoryImpl.pushAllToRemote(userId)
+                    val userId =
+                        SharedPrefsManager.getString(sharedPref, SharedPrefsManager.USER_ID, null)
+                    notificationRepositoryImpl.pushAllToRemote(userId)
                 })
                 .height(Const.ROW_HEIGHT),
         ) {
@@ -107,7 +105,6 @@ fun SettingsScreen(appList: List<AppEntity?>?) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .height(Const.ROW_HEIGHT)
                 .clickable(onClick = { confirmDeleteAllDialog.value = true })
                 .height(Const.ROW_HEIGHT),
         ) {

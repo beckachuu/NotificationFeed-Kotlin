@@ -81,7 +81,7 @@ fun NavigationPane(
                 Box(modifier = Modifier.padding(innerPadding)) {
                     NavHost(navController, startDestination = Routes.Home.route) {
                         composable(Routes.Home.route) {
-                            NotificationModelList(notifList, context)
+                            NotificationModelList(notifList, screenWidth, context)
                         }
                         composable(Routes.Analytics.route) { AnalyticsScreen() }
                         composable(Routes.Important.route) { ImportantScreen() }

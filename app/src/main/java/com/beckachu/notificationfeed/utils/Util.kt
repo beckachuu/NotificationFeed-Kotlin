@@ -1,6 +1,7 @@
 package com.beckachu.notificationfeed.utils
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -151,6 +152,19 @@ object Util {
         }
         return "undefined"
     }
+
+    fun openApp(context: Context, packageName: String) {
+        val manager = context.packageManager
+        try {
+            val intent = manager.getLaunchIntentForPackage(packageName)
+                ?: throw PackageManager.NameNotFoundException()
+            intent.addCategory(Intent.CATEGORY_LAUNCHER)
+            context.startActivity(intent)
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+    }
+
 
     //    public static boolean isNetworkAvailable(Context context) {
     //        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
