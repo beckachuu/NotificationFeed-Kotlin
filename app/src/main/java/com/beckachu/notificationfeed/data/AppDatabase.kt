@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.beckachu.notificationfeed.data.entities.AppEntity
 import com.beckachu.notificationfeed.data.entities.NotificationEntity
 import com.beckachu.notificationfeed.data.local.dao.AppDao
@@ -37,28 +35,11 @@ abstract class AppDatabase : RoomDatabase() {
                 db = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java, DATABASE_NAME
-                ) //                .addMigrations(MIGRATION_1_2)
+                )
                     .build()
             }
             return db as AppDatabase
         }
-
-        val MIGRATION_1_2: Migration = object : Migration(1, 2) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                // Create a new table with the same name but without the removed field
-                db.execSQL("CREATE TABLE new_NotificationEntity (/* new schema */)")
-
-                // Copy the data from the old table to the new table
-                db.execSQL("INSERT INTO new_NotificationEntity SELECT /* columns except the removed one */ FROM NotificationEntity")
-
-                // Remove the old table
-                db.execSQL("DROP TABLE NotificationEntity")
-
-                // Rename the new table to the old table's name
-                db.execSQL("ALTER TABLE new_NotificationEntity RENAME TO NotificationEntity")
-            }
-        }
-
     }
 }
 

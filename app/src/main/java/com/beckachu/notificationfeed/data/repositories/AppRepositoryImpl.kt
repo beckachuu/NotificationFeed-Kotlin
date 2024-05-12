@@ -58,7 +58,7 @@ class AppRepositoryImpl @Inject constructor(
         }
     }
 
-    fun updateReceiveNotiPref(packageName: String, pref: Boolean): Boolean {
+    fun updateReceiveNotifPref(packageName: String, pref: Boolean): Boolean {
         val future = executor.submit<Boolean> {
             return@submit appDao.setReceiveNoti(packageName, pref) != 0
         }

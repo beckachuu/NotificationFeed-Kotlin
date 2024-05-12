@@ -10,10 +10,8 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.media.AudioManager
 import android.os.BatteryManager
-import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -28,8 +26,7 @@ import java.util.Locale
 object Util {
     var format = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault())
 
-
-    val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
+    val dateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
 
     fun getAppNameFromPackage(
         context: Context,
@@ -37,8 +34,7 @@ object Util {
         returnNull: Boolean
     ): String? {
         val pm = context.applicationContext.packageManager
-        val ai: ApplicationInfo?
-        ai = try {
+        val ai: ApplicationInfo? = try {
             pm.getApplicationInfo(packageName!!, 0)
         } catch (e: PackageManager.NameNotFoundException) {
             null
@@ -61,7 +57,7 @@ object Util {
     }
 
     @Composable
-    fun Drawable.toImageBitmap(): ImageBitmap? {
+    fun Drawable.toImageBitmap(): ImageBitmap {
         if (this is BitmapDrawable) {
             return bitmap.asImageBitmap()
         }
@@ -80,8 +76,8 @@ object Util {
         return BitmapDrawable(context.resources, bitmap)
     }
 
-    fun nullToEmptyString(charsequence: CharSequence?): String {
-        return charsequence?.toString() ?: ""
+    fun nullToEmptyString(charSequence: CharSequence?): String {
+        return charSequence?.toString() ?: ""
     }
 
     fun isNotifAccessEnabled(context: Context): Boolean {
@@ -116,7 +112,6 @@ object Util {
         return false
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     fun getLocale(context: Context): String {
         val localeList = context.resources.configuration.locales
         return localeList.toString()
@@ -127,16 +122,6 @@ object Util {
             context!!,
             permission!!
         ) == PermissionChecker.PERMISSION_GRANTED
-    }
-
-    fun getAllInstalledApps(context: Context): Array<String> {
-        val pm = context.packageManager
-        val packages = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-        val list = ArrayList<String>()
-        for (packageInfo in packages) {
-            list.add(packageInfo.packageName)
-        }
-        return list.toTypedArray<String>()
     }
 
     fun getBatteryLevel(context: Context): Int {
@@ -153,8 +138,7 @@ object Util {
     fun getBatteryStatus(context: Context): String {
         try {
             val bm = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-            val status = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_STATUS)
-            return when (status) {
+            return when (val status = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_STATUS)) {
                 BatteryManager.BATTERY_STATUS_CHARGING -> "charging"
                 BatteryManager.BATTERY_STATUS_DISCHARGING -> "discharging"
                 BatteryManager.BATTERY_STATUS_FULL -> "full"

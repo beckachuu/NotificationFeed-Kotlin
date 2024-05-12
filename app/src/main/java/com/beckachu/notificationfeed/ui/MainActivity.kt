@@ -15,6 +15,8 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -62,10 +64,13 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun AskPermission(navController: NavHostController) {
-        if (!permissionViewModel.isNotificationServiceEnabled()) {
+        val showDialog = remember { mutableStateOf(true) }
+
+        if (showDialog.value && !permissionViewModel.isNotificationServiceEnabled()) {
             PermissionDialog(
                 dialogText = "You need to enable the permission to use this app. Please enable the Notification access permission to make the app work.",
-                onConfirm = permissionViewModel::openNotificationAccessSettings
+                onConfirm = permissionViewModel::openNotificationAccessSettings,
+                onDismissRequest = { showDialog.value = false }
             )
         } else {
             MainLayout(navController)
