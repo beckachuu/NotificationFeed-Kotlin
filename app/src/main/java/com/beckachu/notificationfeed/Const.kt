@@ -20,8 +20,7 @@ object Const {
     val users = "users"
     val notifCollection = "notificationCollection"
 
-    const val ALL_NOTI = "%"
-    const val MAX_FRAGMENT_CACHE = 5
+    val EXPIRE_TIME = 604800 // 1 week
 
     // Feature flags
     const val ENABLE_ACTIVITY_RECOGNITION = true

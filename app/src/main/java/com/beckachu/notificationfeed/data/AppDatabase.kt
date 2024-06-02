@@ -13,9 +13,9 @@ import com.beckachu.notificationfeed.data.local.dao.NotificationDao
 
 
 @Database(
-    version = 2,
+    version = 3,
     entities = [NotificationEntity::class, AppEntity::class],
-    exportSchema = false
+    exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun notifDao(): NotificationDao
@@ -37,7 +37,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java, DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
             }
             return db as AppDatabase
@@ -95,6 +95,62 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE new_NotificationEntity RENAME TO NotificationEntity")
             }
         }
+
+
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                            CREATE TABLE new_NotificationEntity (
+                                notifKey TEXT NOT NULL,
+                                expireTime INTEGER NULL,
+                                packageName TEXT NOT NULL,
+                                postTime INTEGER PRIMARY KEY NOT NULL,
+                                isClearable INTEGER NOT NULL,
+                                isOngoing INTEGER NOT NULL,
+                                flags INTEGER NOT NULL,
+                                ringerMode INTEGER NOT NULL,
+                                isScreenOn INTEGER NOT NULL,
+                                batteryLevel INTEGER NOT NULL,
+                                batteryStatus TEXT,
+                                "group" TEXT,
+                                isGroupSummary INTEGER NOT NULL,
+                                category TEXT,
+                                actionCount INTEGER NOT NULL,
+                                isLocalOnly INTEGER NOT NULL,
+                                priority INTEGER NOT NULL,
+                                tag TEXT,
+                                sortKey TEXT,
+                                visibility INTEGER NOT NULL,
+                                color INTEGER NOT NULL,
+                                interruptionFilter INTEGER NOT NULL,
+                                listenerHints INTEGER NOT NULL,
+                                isMatchesInterruptionFilter INTEGER NOT NULL,
+                                textInfo TEXT,
+                                textSub TEXT,
+                                textSummary TEXT,
+                                textLines TEXT,
+                                appName TEXT,
+                                tickerText TEXT,
+                                title TEXT NOT NULL,
+                                titleBig TEXT,
+                                text TEXT NOT NULL,
+                                textBig TEXT NOT NULL
+                            )
+                        """
+                )
+                db.execSQL(
+                    """
+                            INSERT INTO new_NotificationEntity (notifKey, packageName, postTime, isClearable, isOngoing, flags, ringerMode, isScreenOn, batteryLevel, batteryStatus, "group", isGroupSummary, category, actionCount, isLocalOnly, priority, tag, sortKey, visibility, color, interruptionFilter, listenerHints, isMatchesInterruptionFilter, textInfo, textSub, textSummary, textLines, appName, tickerText, title, titleBig, text, textBig)
+                            SELECT notifKey, packageName, postTime, isClearable, isOngoing, flags, ringerMode, isScreenOn, batteryLevel, batteryStatus, "group", isGroupSummary, category, actionCount, isLocalOnly, priority, tag, sortKey, visibility, color, interruptionFilter, listenerHints, isMatchesInterruptionFilter, textInfo, textSub, textSummary, textLines, appName, tickerText, title, titleBig, text, textBig
+                            FROM NotificationEntity
+                        """
+                )
+                db.execSQL("DROP TABLE NotificationEntity")
+                db.execSQL("ALTER TABLE new_NotificationEntity RENAME TO NotificationEntity")
+            }
+        }
+
 
     }
 }

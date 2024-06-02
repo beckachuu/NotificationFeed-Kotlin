@@ -19,14 +19,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.beckachu.notificationfeed.Const
+import com.beckachu.notificationfeed.data.di.NotifRepoModule
 import com.beckachu.notificationfeed.data.entities.AppEntity
+import com.beckachu.notificationfeed.data.repositories.NotificationRepositoryImpl
 import com.beckachu.notificationfeed.navigation.Routes
 import com.beckachu.notificationfeed.ui.appbar.AppBar
 import com.beckachu.notificationfeed.ui.notification.NotificationModelList
 import com.beckachu.notificationfeed.ui.screens.AnalyticsScreen
 import com.beckachu.notificationfeed.ui.screens.ImportantScreen
 import com.beckachu.notificationfeed.ui.screens.SettingsScreen
-import com.beckachu.notificationfeed.ui.screens.TrashScreen
 import com.beckachu.notificationfeed.ui.sign_in.SignInState
 import com.beckachu.notificationfeed.ui.sign_in.UserData
 import com.beckachu.notificationfeed.ui.viewmodels.NotifListViewModel
@@ -47,6 +48,11 @@ fun NavigationPane(
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val maxDrawerWidth = screenWidth * Const.NAV_MENU_WIDTH
     val notifList = notifListViewModel.notifList.collectAsLazyPagingItems()
+    val deletedList = notifListViewModel.deletedList.collectAsLazyPagingItems()
+    val notificationRepositoryImpl: NotificationRepositoryImpl =
+        NotifRepoModule.provideNotifRepository(context)
+
+    notificationRepositoryImpl.scanTrash();
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -81,12 +87,24 @@ fun NavigationPane(
                 Box(modifier = Modifier.padding(innerPadding)) {
                     NavHost(navController, startDestination = Routes.Home.route) {
                         composable(Routes.Home.route) {
-                            NotificationModelList(notifList, screenWidth, context)
+                            NotificationModelList(
+                                notifList,
+                                screenWidth,
+                                notificationRepositoryImpl,
+                                context,
+                            )
                         }
                         composable(Routes.Analytics.route) { AnalyticsScreen() }
                         composable(Routes.Important.route) { ImportantScreen() }
                         composable(Routes.Settings.route) { SettingsScreen(appList) }
-                        composable(Routes.Trash.route) { TrashScreen() }
+                        composable(Routes.Trash.route) {
+                            NotificationModelList(
+                                deletedList,
+                                screenWidth,
+                                notificationRepositoryImpl,
+                                context,
+                            )
+                        }
                     }
                 }
             }

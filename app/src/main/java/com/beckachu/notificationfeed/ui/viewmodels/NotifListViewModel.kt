@@ -23,10 +23,13 @@ class NotifListViewModel @Inject constructor(
     val notifList: Flow<PagingData<NotificationEntity>> =
         selectedPackageName.flatMapLatest { selectedApp ->
             if (selectedApp == null) {
-                notificationRepositoryImpl.getAllNotifications()
+                notificationRepositoryImpl.getAllNotifications(false)
             } else {
                 notificationRepositoryImpl.getAllNotificationsByApp(selectedApp)
             }
         }
+
+    val deletedList: Flow<PagingData<NotificationEntity>> =
+        notificationRepositoryImpl.getAllNotifications(true)
 }
 

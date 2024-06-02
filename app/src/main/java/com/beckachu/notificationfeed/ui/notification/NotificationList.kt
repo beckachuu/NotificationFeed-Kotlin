@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -46,6 +47,7 @@ import androidx.wear.compose.material.FractionalThreshold
 import androidx.wear.compose.material.rememberSwipeableState
 import androidx.wear.compose.material.swipeable
 import com.beckachu.notificationfeed.data.entities.NotificationEntity
+import com.beckachu.notificationfeed.data.repositories.NotificationRepositoryImpl
 import com.beckachu.notificationfeed.utils.Util
 import com.beckachu.notificationfeed.utils.Util.toImageBitmap
 import java.time.Instant
@@ -58,6 +60,7 @@ import kotlin.math.roundToInt
 fun NotificationModelList(
     notifications: LazyPagingItems<NotificationEntity>,
     screenWidth: Dp,
+    notificationRepositoryImpl: NotificationRepositoryImpl,
     context: Context
 ) {
     val groupedNotifications = notifications.itemSnapshotList.items
@@ -82,7 +85,12 @@ fun NotificationModelList(
                     )
                 }
 
-                NotificationModelCard(notifs[index], screenWidth, context)
+                NotificationModelCard(
+                    notifs[index],
+                    screenWidth,
+                    notificationRepositoryImpl,
+                    context
+                )
             }
         }
     }
@@ -91,7 +99,12 @@ fun NotificationModelList(
 
 @OptIn(ExperimentalWearMaterialApi::class)
 @Composable
-fun NotificationModelCard(notification: NotificationEntity?, screenWidth: Dp, context: Context) {
+fun NotificationModelCard(
+    notification: NotificationEntity?,
+    screenWidth: Dp,
+    notificationRepositoryImpl: NotificationRepositoryImpl,
+    context: Context
+) {
     var extended by remember { mutableStateOf(false) }
 
     if (notification != null) {
@@ -118,8 +131,15 @@ fun NotificationModelCard(notification: NotificationEntity?, screenWidth: Dp, co
                 horizontalArrangement = Arrangement.End
             ) {
                 IconButton(onClick = {
-                    /* Handle Delete */
+                    notificationRepositoryImpl.trashOrDelete(
+                        notification.expireTime != null,
+                        notification.postTime
+                    )
 
+                    // Reset the swipeableState
+//                    CoroutineScope(Dispatchers.Main).launch {
+//                        swipeableState.animateTo(false)
+//                    }
                 }) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete")
                 }
@@ -170,14 +190,14 @@ fun NotificationModelCard(notification: NotificationEntity?, screenWidth: Dp, co
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 maxLines = if (extended) Int.MAX_VALUE else 1,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f),
+                                overflow = TextOverflow.Ellipsis
                             )
-                            if (!extended) {
-                                Text(
-                                    text = formattedTime,
-                                    style = MaterialTheme.typography.labelLarge,
-                                )
-                            }
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = formattedTime,
+                                style = MaterialTheme.typography.labelLarge,
+                            )
                         }
 
                     }
@@ -196,7 +216,8 @@ fun NotificationModelCard(notification: NotificationEntity?, screenWidth: Dp, co
                         Text(
                             text = textBig,
                             style = MaterialTheme.typography.bodyMedium,
-                            maxLines = if (extended) Int.MAX_VALUE else 3
+                            maxLines = if (extended) Int.MAX_VALUE else 3,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }

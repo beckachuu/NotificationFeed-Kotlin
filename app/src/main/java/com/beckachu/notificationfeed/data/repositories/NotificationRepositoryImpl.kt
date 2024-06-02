@@ -39,8 +39,8 @@ class NotificationRepositoryImpl(
     private val notifRemoteDataSource: NotificationRemoteDataSource,
     private val appDao: AppDao,
 ) {
-    fun getAllNotifications() = Pager(PagingConfig(pageSize = Const.PAGE_SIZE)) {
-        notifDao.getNotificationPages()
+    fun getAllNotifications(deleted: Boolean) = Pager(PagingConfig(pageSize = Const.PAGE_SIZE)) {
+        if (deleted) notifDao.getDeletedNotifications() else notifDao.getNotificationPages()
     }.flow
 
     fun getAllNotificationsByApp(packageName: String) =
@@ -55,24 +55,26 @@ class NotificationRepositoryImpl(
         executor.execute {
             synchronized(Const.LOCK_OBJECT) {
                 if (!notificationEntity.isGroupSummary) {
-                    val appEntity = AppEntity(context, notificationEntity.packageName)
+                    val packageName = notificationEntity.packageName
+                    val appEntity = AppEntity(context, packageName)
                     notifDao.insert(notificationEntity)
 
-                    appDao.insertApp(appEntity)
-                    val packageName = notificationEntity.packageName
-                    val checkNewApp = SharedPrefsManager.getBool(
-                        sharedPref,
-                        SharedPrefsManager.CHECK_NEW_APP,
-                        false
-                    )
                     val checkedAppList =
                         SharedPrefsManager.getStringSet(sharedPref, SharedPrefsManager.APP_LIST)
-                    if (checkNewApp && !checkedAppList.contains(packageName)) {
-                        checkedAppList.add(packageName)
-                        sharedPref
-                            .edit()
-                            .putStringSet(SharedPrefsManager.APP_LIST, checkedAppList)
-                            .apply()
+                    if (!checkedAppList.contains(packageName)) {
+                        appDao.insertApp(appEntity)
+                        val checkNewApp = SharedPrefsManager.getBool(
+                            sharedPref,
+                            SharedPrefsManager.CHECK_NEW_APP,
+                            false
+                        )
+                        if (checkNewApp) {
+                            checkedAppList.add(packageName)
+                            sharedPref
+                                .edit()
+                                .putStringSet(SharedPrefsManager.APP_LIST, checkedAppList)
+                                .apply()
+                        }
                     }
 
                     if (userId != null) {
@@ -95,25 +97,39 @@ class NotificationRepositoryImpl(
     fun pushAllToRemote(userId: String?): Boolean {
         return if (userId != null) {
             val notifications = notifDao.getAllNotifications()
-            notifRemoteDataSource.pushAll(userId, notifications)
+            try {
+                notifRemoteDataSource.pushAll(userId, notifications)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
             true
         } else {
             false
         }
     }
 
-    fun delete(key: String): Int {
-        val future: Future<Int> = executor.submit(Callable {
+    fun trashOrDelete(delete: Boolean, postTime: Long) {
+        executor.execute {
             synchronized(Const.LOCK_OBJECT) {
-                return@Callable notifDao.delete(key)
+                if (delete) {
+                    notifDao.deleteOne(postTime)
+                } else {
+                    val currentTime = System.currentTimeMillis() / 1000
+                    notifDao.moveToTrash(postTime, currentTime + Const.EXPIRE_TIME)
+                }
             }
-        })
-        return try {
-            future.get()
-        } catch (e: InterruptedException) {
-            0
         }
     }
+
+    fun scanTrash() {
+        val currentTime = System.currentTimeMillis() / 1000
+        executor.execute {
+            synchronized(Const.LOCK_OBJECT) {
+                notifDao.emptyTrash(currentTime)
+            }
+        }
+    }
+
 
     fun deleteAllFromLocal(): Int {
         val future: Future<Int> = executor.submit(Callable {

@@ -22,6 +22,8 @@ data class NotificationEntity(
     val postTime: Long = 0,
     val packageName: String = "",
 
+    val expireTime: Long? = null,
+
     var isClearable: Boolean = false,
     var isOngoing: Boolean = false,
     var flags: Int = 0,

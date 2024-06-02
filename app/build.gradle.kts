@@ -24,14 +24,9 @@ android {
             useSupportLibrary = true
         }
 
-//        javaCompileOptions {
-//            annotationProcessorOptions {
-//                arguments += [
-//                    "room.schemaLocation": "$projectDir/schemas".toString()
-//                ]
-//            }
-//        }
-
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
     }
 
     buildTypes {

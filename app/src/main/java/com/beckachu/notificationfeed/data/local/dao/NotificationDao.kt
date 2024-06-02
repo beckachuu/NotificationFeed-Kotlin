@@ -16,20 +16,30 @@ import com.beckachu.notificationfeed.data.entities.NotificationEntity
  */
 @Dao
 interface NotificationDao {
-    @Query("SELECT * FROM notificationentity ORDER BY postTime DESC")
+    @Query("SELECT * FROM notificationentity WHERE expireTime IS NULL ORDER BY postTime DESC")
     fun getNotificationPages(): PagingSource<Int, NotificationEntity>
 
-    @Query("SELECT * FROM notificationentity")
+    @Query("SELECT * FROM notificationentity WHERE expireTime IS NULL")
     fun getAllNotifications(): List<NotificationEntity>
 
-    @Query("SELECT * FROM notificationentity WHERE packageName LIKE :packageName ORDER BY postTime DESC")
+    @Query("SELECT * FROM notificationentity WHERE packageName LIKE :packageName AND expireTime IS NULL ORDER BY postTime DESC")
     fun getAllByApp(packageName: String?): PagingSource<Int, NotificationEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(notificationentity: NotificationEntity): Long
 
-    @Query("DELETE FROM notificationentity WHERE notifKey = :key")
-    fun delete(key: String): Int
+
+    @Query("SELECT * FROM notificationentity WHERE expireTime IS NOT NULL ORDER BY postTime DESC")
+    fun getDeletedNotifications(): PagingSource<Int, NotificationEntity>
+
+    @Query("UPDATE NotificationEntity SET expireTime = :expTime WHERE postTime = :key")
+    fun moveToTrash(key: Long, expTime: Long)
+
+    @Query("DELETE FROM NotificationEntity WHERE expireTime < :currentTime")
+    fun emptyTrash(currentTime: Long)
+
+    @Query("DELETE FROM NotificationEntity WHERE postTime = :key")
+    fun deleteOne(key: Long)
 
     @Query("DELETE FROM notificationentity")
     fun deleteAll(): Int
