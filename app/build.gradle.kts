@@ -84,6 +84,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.wear.compose:compose-material:1.3.1")
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
     ksp("com.google.dagger:hilt-android-compiler:2.48")
     ksp("androidx.hilt:hilt-compiler:1.2.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")

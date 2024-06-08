@@ -2,6 +2,7 @@ package com.beckachu.notificationfeed.ui.screens
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.media.AudioManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -34,11 +35,14 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.beckachu.notificationfeed.Const
 import com.beckachu.notificationfeed.data.SharedPrefsManager
 import com.beckachu.notificationfeed.data.di.NotifRepoModule
 import com.beckachu.notificationfeed.data.entities.AppEntity
 import com.beckachu.notificationfeed.data.repositories.NotificationRepositoryImpl
+import com.beckachu.notificationfeed.domain.noise.NoiseListenerWorker
 import com.beckachu.notificationfeed.ui.components.LongDivider
 
 @Composable
@@ -63,6 +67,11 @@ fun SettingsScreen(appList: List<AppEntity?>?) {
 
     val notificationRepositoryImpl: NotificationRepositoryImpl =
         NotifRepoModule.provideNotifRepository(context)
+
+    val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolume, 0)
+    var currentVolume by remember { mutableStateOf(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)) }
 
     Column(
         modifier = Modifier.padding(
@@ -171,14 +180,27 @@ fun SettingsScreen(appList: List<AppEntity?>?) {
             Switch(
                 checked = autoAdjustVolume,
                 onCheckedChange = { isChecked ->
-                    run {
-                        autoAdjustVolume = isChecked
+                    autoAdjustVolume = isChecked
+                    SharedPrefsManager.putBool(
+                        sharedPref,
+                        SharedPrefsManager.AUTO_VOLUME,
+                        isChecked
+                    )
 
+                    println("Auto-adjust volume: $isChecked")
+
+                    if (isChecked) {
+                        val workRequest = OneTimeWorkRequestBuilder<NoiseListenerWorker>().build()
+                        WorkManager.getInstance(context).enqueue(workRequest)
+                    } else {
+                        WorkManager.getInstance(context)
+                            .cancelAllWorkByTag(NoiseListenerWorker::class.java.name)
                     }
                 }
             )
         }
         LongDivider()
+
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
