@@ -3,6 +3,7 @@ package com.beckachu.notificationfeed.domain.noise
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.AudioManager
@@ -15,6 +16,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.beckachu.notificationfeed.data.SharedPrefsManager
 import java.util.concurrent.TimeUnit
 import kotlin.math.sqrt
 
@@ -24,18 +26,25 @@ class NoiseListenerWorker(
 ) : CoroutineWorker(context, workerParams) {
 
     private val audioManager by lazy { applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
+    private val sharedPref: SharedPreferences =
+        context.getSharedPreferences(SharedPrefsManager.DEFAULT_NAME, Context.MODE_PRIVATE)
 
     override suspend fun doWork(): Result {
         val averageNoiseLevel = recordNoise()
         adjustVolume(averageNoiseLevel)
         println("New noise level: $averageNoiseLevel")
 
-        // Schedule the next run
-        val delayDuration = 5000L // 5 seconds
-        val nextRunRequest = OneTimeWorkRequestBuilder<NoiseListenerWorker>()
-            .setInitialDelay(delayDuration, TimeUnit.MILLISECONDS)
-            .build()
-        WorkManager.getInstance(applicationContext).enqueue(nextRunRequest)
+        val autoAdjustVolume =
+            SharedPrefsManager.getBool(sharedPref, SharedPrefsManager.AUTO_VOLUME, false)
+        if (autoAdjustVolume) {
+            // Schedule the next run
+            val delayDuration = 5000L // 5 seconds
+            val nextRunRequest = OneTimeWorkRequestBuilder<NoiseListenerWorker>()
+                .setInitialDelay(delayDuration, TimeUnit.MILLISECONDS)
+                .addTag("noise_listener_worker_tag")
+                .build()
+            WorkManager.getInstance(applicationContext).enqueue(nextRunRequest)
+        }
 
         return Result.success()
     }

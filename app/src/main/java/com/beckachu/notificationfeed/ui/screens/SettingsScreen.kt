@@ -190,12 +190,21 @@ fun SettingsScreen(appList: List<AppEntity?>?) {
                     println("Auto-adjust volume: $isChecked")
 
                     if (isChecked) {
-                        val workRequest = OneTimeWorkRequestBuilder<NoiseListenerWorker>().build()
-                        WorkManager.getInstance(context).enqueue(workRequest)
+                        val workRequest = OneTimeWorkRequestBuilder<NoiseListenerWorker>()
+                            .addTag("noise_listener_worker_tag")
+                            .build()
+                        WorkManager.getInstance(context)
+                            .beginUniqueWork(
+                                "NoiseListenerUniqueWork",
+                                ExistingWorkPolicy.REPLACE,
+                                workRequest
+                            )
+                            .enqueue()
                     } else {
                         WorkManager.getInstance(context)
-                            .cancelAllWorkByTag(NoiseListenerWorker::class.java.name)
+                            .cancelUniqueWork("NoiseListenerUniqueWork")
                     }
+
                 }
             )
         }
