@@ -117,7 +117,7 @@ class NoiseListenerWorker(
         val averageSquared = totalSquared / sampleCount
         val rms = sqrt(averageSquared)
 
-        val normalizedNoiseLevel = rms / 1000
+        val normalizedNoiseLevel = rms / 3000
 
         return normalizedNoiseLevel.toFloat()
     }
@@ -126,8 +126,6 @@ class NoiseListenerWorker(
         val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         val newVolume = averageNoiseLevel * maxVolume
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume.toInt(), 0)
-
-//        volumeViewModel.updateVolume(newVolume)
     }
 
 }

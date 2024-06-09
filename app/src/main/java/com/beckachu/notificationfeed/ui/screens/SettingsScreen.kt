@@ -23,14 +23,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +48,11 @@ import com.beckachu.notificationfeed.data.entities.AppEntity
 import com.beckachu.notificationfeed.data.repositories.NotificationRepositoryImpl
 import com.beckachu.notificationfeed.domain.noise.NoiseListenerWorker
 import com.beckachu.notificationfeed.ui.components.LongDivider
+import com.beckachu.notificationfeed.ui.components.ProgressBar
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+
 
 @Composable
 fun SettingsScreen(appList: List<AppEntity?>?) {
@@ -68,10 +77,26 @@ fun SettingsScreen(appList: List<AppEntity?>?) {
     val notificationRepositoryImpl: NotificationRepositoryImpl =
         NotifRepoModule.provideNotifRepository(context)
 
+    // Volume bar
+    val scope = rememberCoroutineScope()
+    var progressBarColor by remember { mutableStateOf(Color.Gray) }
+    var currentVolume by remember { mutableFloatStateOf(0f) }
+
     val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolume, 0)
-    var currentVolume by remember { mutableStateOf(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)) }
+    val maxSystemVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+    DisposableEffect(Unit) {
+        val job = scope.launch {
+            while (isActive) {
+                val systemVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+                currentVolume = systemVolume.toFloat() / maxSystemVolume
+                delay(1000)
+            }
+        }
+
+        onDispose {
+            job.cancel()
+        }
+    }
 
     Column(
         modifier = Modifier.padding(
@@ -189,25 +214,38 @@ fun SettingsScreen(appList: List<AppEntity?>?) {
 
                     println("Auto-adjust volume: $isChecked")
 
-                    if (isChecked) {
+                    progressBarColor = if (isChecked) {
                         val workRequest = OneTimeWorkRequestBuilder<NoiseListenerWorker>()
                             .addTag("noise_listener_worker_tag")
                             .build()
                         WorkManager.getInstance(context)
-                            .beginUniqueWork(
-                                "NoiseListenerUniqueWork",
-                                ExistingWorkPolicy.REPLACE,
-                                workRequest
-                            )
-                            .enqueue()
+                            .enqueue(workRequest)
+
+                        Color(0xFF315DA8)
                     } else {
                         WorkManager.getInstance(context)
-                            .cancelUniqueWork("NoiseListenerUniqueWork")
-                    }
+                            .cancelAllWorkByTag("NoiseListenerUniqueWork")
 
+                        Color.Gray
+                    }
                 }
             )
         }
+
+        // Volume level indicator
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            ProgressBar(
+                backgroundColor = progressBarColor,
+                progress = currentVolume,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(17.dp)
+            )
+        }
+
         LongDivider()
 
 
