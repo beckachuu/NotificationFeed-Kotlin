@@ -30,13 +30,13 @@ class NoiseListenerWorker(
         context.getSharedPreferences(SharedPrefsManager.DEFAULT_NAME, Context.MODE_PRIVATE)
 
     override suspend fun doWork(): Result {
-        val averageNoiseLevel = recordNoise()
-        adjustVolume(averageNoiseLevel)
-        println("New noise level: $averageNoiseLevel")
-
         val autoAdjustVolume =
             SharedPrefsManager.getBool(sharedPref, SharedPrefsManager.AUTO_VOLUME, false)
         if (autoAdjustVolume) {
+            val averageNoiseLevel = recordNoise()
+            adjustVolume(averageNoiseLevel)
+            println("New noise level: $averageNoiseLevel")
+
             // Schedule the next run
             val delayDuration = 5000L // 5 seconds
             val nextRunRequest = OneTimeWorkRequestBuilder<NoiseListenerWorker>()

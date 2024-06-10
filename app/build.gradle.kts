@@ -123,5 +123,15 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.1.1")
 
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // Chart
+    val vicoVersion = "1.14.0"
+    implementation("com.patrykandpatrick.vico:compose:$vicoVersion")
+    implementation("com.patrykandpatrick.vico:compose-m2:$vicoVersion")
+    implementation("com.patrykandpatrick.vico:compose-m3:$vicoVersion")
+    implementation("com.patrykandpatrick.vico:core:$vicoVersion")
+    implementation("com.patrykandpatrick.vico:views:$vicoVersion")
+
+
 }
 

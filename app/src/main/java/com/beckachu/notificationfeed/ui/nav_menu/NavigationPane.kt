@@ -94,7 +94,11 @@ fun NavigationPane(
                                 context,
                             )
                         }
-                        composable(Routes.Analytics.route) { AnalyticsScreen() }
+                        composable(Routes.Analytics.route) {
+                            AnalyticsScreen(
+                                notifList.itemSnapshotList.items
+                            )
+                        }
                         composable(Routes.Important.route) { ImportantScreen() }
                         composable(Routes.Settings.route) { SettingsScreen(appList) }
                         composable(Routes.Trash.route) {
