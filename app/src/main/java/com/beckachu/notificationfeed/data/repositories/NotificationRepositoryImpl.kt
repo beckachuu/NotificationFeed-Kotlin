@@ -62,6 +62,22 @@ class NotificationRepositoryImpl(
         return notifDao.getFilteredNotificationsByApp("%$appPackage%", "%$query%")
     }
 
+    fun getNotificationsByDateRange(
+        startDate: Long,
+        endDate: Long
+    ): PagingSource<Int, NotificationEntity> {
+        return notifDao.getNotificationsByDateRange(startDate, endDate)
+    }
+
+    fun getNotificationsByAppAndDateRange(
+        appPackage: String,
+        startDate: Long,
+        endDate: Long
+    ): PagingSource<Int, NotificationEntity> {
+        return notifDao.getNotificationsByAppAndDateRange("%$appPackage%", startDate, endDate)
+    }
+
+
     fun addNotif(
         context: Context, sharedPref: SharedPreferences,
         notificationEntity: NotificationEntity, userId: String?

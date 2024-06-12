@@ -5,17 +5,25 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.DrawerState
@@ -38,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.beckachu.notificationfeed.ui.dialogs.PermissionDialog
@@ -56,6 +65,7 @@ fun AppBar(
 
     var searchText by remember { mutableStateOf("") }
 
+    val snackScope = rememberCoroutineScope()
     var showDateRangePicker by remember { mutableStateOf(false) }
     val pickerState = rememberDateRangePickerState(
         initialSelectedStartDateMillis = null,
@@ -148,36 +158,50 @@ fun AppBar(
         )
     }
 
+
     if (showDateRangePicker) {
-        DatePickerDialog(
+        Card(
             modifier = Modifier
-                .height(400.dp),
-            onDismissRequest = { showDateRangePicker = false },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showDateRangePicker = false
-
-                        // TODO: Show search values
-
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                    shape = MaterialTheme.shapes.medium,
-                    modifier = Modifier.padding(8.dp) // Ensure padding for visibility
-                ) {
-                    Text("Search", style = MaterialTheme.typography.bodyMedium)
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showDateRangePicker = false },
-                    modifier = Modifier.padding(8.dp) // Ensure padding for visibility
-                ) {
-                    Text("Cancel", style = MaterialTheme.typography.bodyMedium)
-                }
-            }
+                .height(500.dp)
+                .padding(10.dp),
+            shape = RoundedCornerShape(24.dp),
         ) {
-            DateRangePicker(state = pickerState)
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(DatePickerDefaults.colors().containerColor)
+                        .padding(4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    IconButton(onClick = { showDateRangePicker = false }) {
+                        Icon(Icons.Filled.Close, contentDescription = "Localized description")
+                    }
+                    TextButton(
+                        onClick = {
+                            showDateRangePicker = false
+                            snackScope.launch {
+                                val startDate = pickerState.selectedStartDateMillis!!
+                                val endDate = pickerState.selectedEndDateMillis!!
+                                notifListViewModel.selectedDateRange.value =
+                                    Pair(startDate, endDate)
+                            }
+                        },
+                        enabled = pickerState.selectedEndDateMillis != null,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    ) {
+                        Text(text = "Search")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                DateRangePicker(
+                    state = pickerState
+                )
+            }
+
         }
 
     }

@@ -25,6 +25,8 @@ class NotifListViewModel @Inject constructor(
     val isSearchMode = MutableStateFlow(false)
     val searchQuery = MutableStateFlow("")
 
+    val selectedDateRange = MutableStateFlow<Pair<Long, Long>?>(null)
+
     fun toggleSearchMode() {
         isSearchMode.value = !isSearchMode.value
         if (!isSearchMode.value) {
@@ -34,12 +36,32 @@ class NotifListViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val notifList: Flow<PagingData<NotificationEntity>> =
-        combine(selectedPackageName, searchQuery) { selectedApp, query ->
+        combine(
+            selectedPackageName,
+            searchQuery,
+            selectedDateRange
+        ) { selectedApp, query, dateRange ->
             Pager(PagingConfig(pageSize = 20)) {
-                if (selectedApp == null) {
-                    notificationRepositoryImpl.getAllNotificationsFiltered(query)
-                } else {
-                    notificationRepositoryImpl.getAllNotificationsByAppFiltered(selectedApp, query)
+                when {
+                    selectedApp != null && dateRange != null -> notificationRepositoryImpl.getNotificationsByAppAndDateRange(
+                        selectedApp,
+                        dateRange.first,
+                        dateRange.second
+                    )
+
+                    selectedApp != null && dateRange == null -> notificationRepositoryImpl.getAllNotificationsByAppFiltered(
+                        selectedApp,
+                        query
+                    )
+
+                    selectedApp == null && dateRange != null -> notificationRepositoryImpl.getNotificationsByDateRange(
+                        dateRange.first,
+                        dateRange.second
+                    )
+
+                    else -> notificationRepositoryImpl.getAllNotificationsFiltered(
+                        query
+                    )
                 }
             }.flow
         }.flatMapLatest { it }

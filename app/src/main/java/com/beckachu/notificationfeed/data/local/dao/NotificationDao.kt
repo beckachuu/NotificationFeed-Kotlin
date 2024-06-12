@@ -25,6 +25,7 @@ interface NotificationDao {
     @Query("SELECT * FROM notificationentity WHERE packageName LIKE :packageName AND expireTime IS NULL ORDER BY postTime DESC")
     fun getAllByApp(packageName: String?): PagingSource<Int, NotificationEntity>
 
+
     @Query("SELECT * FROM notificationentity WHERE (title LIKE :query OR textBig LIKE :query OR text LIKE :query) AND expireTime IS NULL ORDER BY postTime DESC")
     fun getFilteredNotifications(query: String): PagingSource<Int, NotificationEntity>
 
@@ -32,6 +33,19 @@ interface NotificationDao {
     fun getFilteredNotificationsByApp(
         appPackage: String,
         query: String
+    ): PagingSource<Int, NotificationEntity>
+
+    @Query("SELECT * FROM notificationentity WHERE postTime >= :startDate AND postTime <= :endDate AND expireTime IS NULL ORDER BY postTime DESC")
+    fun getNotificationsByDateRange(
+        startDate: Long,
+        endDate: Long
+    ): PagingSource<Int, NotificationEntity>
+
+    @Query("SELECT * FROM notificationentity WHERE packageName LIKE :appPackage AND postTime >= :startDate AND postTime <= :endDate AND expireTime IS NULL ORDER BY postTime DESC")
+    fun getNotificationsByAppAndDateRange(
+        appPackage: String,
+        startDate: Long,
+        endDate: Long
     ): PagingSource<Int, NotificationEntity>
 
 
