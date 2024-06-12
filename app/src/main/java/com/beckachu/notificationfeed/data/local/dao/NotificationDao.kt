@@ -25,6 +25,16 @@ interface NotificationDao {
     @Query("SELECT * FROM notificationentity WHERE packageName LIKE :packageName AND expireTime IS NULL ORDER BY postTime DESC")
     fun getAllByApp(packageName: String?): PagingSource<Int, NotificationEntity>
 
+    @Query("SELECT * FROM notificationentity WHERE (title LIKE :query OR textBig LIKE :query OR text LIKE :query) AND expireTime IS NULL ORDER BY postTime DESC")
+    fun getFilteredNotifications(query: String): PagingSource<Int, NotificationEntity>
+
+    @Query("SELECT * FROM notificationentity WHERE packageName LIKE :appPackage AND (title LIKE :query OR textBig LIKE :query OR text LIKE :query) AND expireTime IS NULL ORDER BY postTime DESC")
+    fun getFilteredNotificationsByApp(
+        appPackage: String,
+        query: String
+    ): PagingSource<Int, NotificationEntity>
+
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(notificationentity: NotificationEntity): Long
 

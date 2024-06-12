@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
 import com.beckachu.notificationfeed.Const
 import com.beckachu.notificationfeed.data.SharedPrefsManager
 import com.beckachu.notificationfeed.data.entities.AppEntity
@@ -48,6 +49,19 @@ class NotificationRepositoryImpl(
             notifDao.getAllByApp(packageName)
         }.flow
 
+    fun getAllNotificationsFiltered(
+        query: String
+    ): PagingSource<Int, NotificationEntity> {
+        return notifDao.getFilteredNotifications("%$query%")
+    }
+
+    fun getAllNotificationsByAppFiltered(
+        appPackage: String,
+        query: String
+    ): PagingSource<Int, NotificationEntity> {
+        return notifDao.getFilteredNotificationsByApp("%$appPackage%", "%$query%")
+    }
+
     fun addNotif(
         context: Context, sharedPref: SharedPreferences,
         notificationEntity: NotificationEntity, userId: String?
@@ -63,6 +77,10 @@ class NotificationRepositoryImpl(
                         SharedPrefsManager.getStringSet(sharedPref, SharedPrefsManager.APP_LIST)
                     if (!checkedAppList.contains(packageName)) {
                         appDao.insertApp(appEntity)
+                        if (userId != null) {
+                            notifRemoteDataSource.push(userId, notificationEntity)
+                        }
+
                         val checkNewApp = SharedPrefsManager.getBool(
                             sharedPref,
                             SharedPrefsManager.CHECK_NEW_APP,
@@ -75,10 +93,6 @@ class NotificationRepositoryImpl(
                                 .putStringSet(SharedPrefsManager.APP_LIST, checkedAppList)
                                 .apply()
                         }
-                    }
-
-                    if (userId != null) {
-                        notifRemoteDataSource.push(userId, notificationEntity)
                     }
                 }
             }

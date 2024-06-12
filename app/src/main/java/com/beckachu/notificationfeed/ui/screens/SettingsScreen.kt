@@ -121,21 +121,23 @@ fun SettingsScreen(appList: List<AppEntity?>?) {
                 style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.primary)
             )
         }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .clickable(onClick = {
-                    val userId =
-                        SharedPrefsManager.getString(sharedPref, SharedPrefsManager.USER_ID, null)
-                    notificationRepositoryImpl.pushAllToRemote(userId)
-                })
-                .height(Const.ROW_HEIGHT),
-        ) {
-            Text(
-                text = "Push to online storage",
-                style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.primary)
-            )
-        }
+
+//        Row(
+//            verticalAlignment = Alignment.CenterVertically,
+//            modifier = Modifier
+//                .clickable(onClick = {
+//                    val userId =
+//                        SharedPrefsManager.getString(sharedPref, SharedPrefsManager.USER_ID, null)
+//                    notificationRepositoryImpl.pushAllToRemote(userId)
+//                })
+//                .height(Const.ROW_HEIGHT),
+//        ) {
+//            Text(
+//                text = "Push to online storage",
+//                style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.primary)
+//            )
+//        }
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier

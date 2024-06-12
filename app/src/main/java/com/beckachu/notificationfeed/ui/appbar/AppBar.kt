@@ -5,18 +5,31 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,11 +38,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import com.beckachu.notificationfeed.ui.dialogs.DateRange
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.beckachu.notificationfeed.ui.dialogs.PermissionDialog
 import com.beckachu.notificationfeed.ui.viewmodels.NotifListViewModel
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,12 +54,41 @@ fun AppBar(
     val selectedAppName by notifListViewModel.selectedAppName.collectAsState()
     val showWarning = rememberSaveable { mutableStateOf(false) }
 
+    var searchText by remember { mutableStateOf("") }
+
     var showDateRangePicker by remember { mutableStateOf(false) }
-    var dateRange by remember { mutableStateOf<Pair<LocalDate, LocalDate>?>(null) }
+    val pickerState = rememberDateRangePickerState(
+        initialSelectedStartDateMillis = null,
+        initialDisplayedMonthMillis = null,
+        yearRange = 2023..2024,
+        initialDisplayMode = DisplayMode.Picker,
+    )
 
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-        title = { Text(selectedAppName ?: "All") },
+        title = {
+            val isSearchMode by notifListViewModel.isSearchMode.collectAsState()
+            if (isSearchMode) {
+                OutlinedTextField(
+                    value = searchText,
+                    onValueChange = { newText ->
+                        searchText = newText
+                        notifListViewModel.searchQuery.value = newText
+                    },
+                    placeholder = { Text("Search notifications") },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier
+                        .height(IntrinsicSize.Min),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTrailingIconColor = MaterialTheme.colorScheme.secondary,
+                        unfocusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+                    )
+                )
+            } else {
+                Text(selectedAppName ?: "All")
+            }
+        },
         navigationIcon = {
             IconButton(onClick = {
                 scope.launch {
@@ -60,7 +102,6 @@ fun AppBar(
                 Icon(Icons.Filled.Menu, contentDescription = "Menu")
             }
         },
-
         actions = {
             IconButton(onClick = { showWarning.value = true }) {
                 Icon(
@@ -71,12 +112,17 @@ fun AppBar(
             }
 
             IconButton(onClick = {
-
+                notifListViewModel.toggleSearchMode()
             }) {
+                Icon(Icons.Filled.Search, contentDescription = "Search")
+            }
+
+            IconButton(onClick = { showDateRangePicker = true }) {
                 Icon(Icons.Filled.DateRange, contentDescription = "Filter")
             }
         },
     )
+
 
     if (showWarning.value) {
         PermissionDialog(
@@ -103,11 +149,37 @@ fun AppBar(
     }
 
     if (showDateRangePicker) {
-        val dateRangePicker = remember { DateRange() }
-        dateRangePicker.show { start, end ->
-            dateRange = start to end
-            showDateRangePicker = false
+        DatePickerDialog(
+            modifier = Modifier
+                .height(400.dp),
+            onDismissRequest = { showDateRangePicker = false },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDateRangePicker = false
+
+                        // TODO: Show search values
+
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    shape = MaterialTheme.shapes.medium,
+                    modifier = Modifier.padding(8.dp) // Ensure padding for visibility
+                ) {
+                    Text("Search", style = MaterialTheme.typography.bodyMedium)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDateRangePicker = false },
+                    modifier = Modifier.padding(8.dp) // Ensure padding for visibility
+                ) {
+                    Text("Cancel", style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        ) {
+            DateRangePicker(state = pickerState)
         }
+
     }
 }
 
