@@ -1,6 +1,7 @@
 package com.beckachu.notificationfeed.data.remote
 
 import android.content.Context
+import android.util.Log
 import com.beckachu.notificationfeed.Const
 import com.beckachu.notificationfeed.data.entities.AppEntity
 import com.beckachu.notificationfeed.data.entities.NotificationEntity
@@ -9,6 +10,7 @@ import com.beckachu.notificationfeed.data.local.dao.NotificationDao
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -54,10 +56,25 @@ class NotificationRemoteDataSource(firebaseDb: FirebaseFirestore) {
     }
 
 
-    fun deleteOne(userId: String, notificationEntity: NotificationEntity) =
+    fun deleteOne(userId: String, postTime: Long) =
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                val collection = db.collection(Const.users)
+                    .document(userId)
+                    .collection(Const.notifCollection)
 
+                val query = collection.whereEqualTo("postTime", postTime).get()
+                query.addOnSuccessListener { querySnapshot ->
+                    for (document in querySnapshot.documents) {
+                        document.reference.delete().addOnSuccessListener {
+
+                        }.addOnFailureListener { e ->
+                            e.printStackTrace()
+                        }
+                    }
+                }.addOnFailureListener { e ->
+                    e.printStackTrace()
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }

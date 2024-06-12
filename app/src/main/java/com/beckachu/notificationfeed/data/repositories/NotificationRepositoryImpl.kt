@@ -138,11 +138,14 @@ class NotificationRepositoryImpl(
         }
     }
 
-    fun trashOrDelete(delete: Boolean, postTime: Long) {
+    fun trashOrDelete(delete: Boolean, postTime: Long, userId: String?) {
         executor.execute {
             synchronized(Const.LOCK_OBJECT) {
                 if (delete) {
                     notifDao.deleteOne(postTime)
+                    if (userId != null) {
+                        notifRemoteDataSource.deleteOne(userId = userId, postTime = postTime)
+                    }
                 } else {
                     val currentTime = System.currentTimeMillis() / 1000
                     notifDao.moveToTrash(postTime, currentTime + Const.EXPIRE_TIME)

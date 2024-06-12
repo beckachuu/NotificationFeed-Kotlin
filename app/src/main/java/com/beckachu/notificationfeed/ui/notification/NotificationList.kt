@@ -46,6 +46,7 @@ import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.FractionalThreshold
 import androidx.wear.compose.material.rememberSwipeableState
 import androidx.wear.compose.material.swipeable
+import com.beckachu.notificationfeed.data.SharedPrefsManager
 import com.beckachu.notificationfeed.data.entities.NotificationEntity
 import com.beckachu.notificationfeed.data.repositories.NotificationRepositoryImpl
 import com.beckachu.notificationfeed.utils.Util
@@ -105,6 +106,8 @@ fun NotificationModelCard(
     notificationRepositoryImpl: NotificationRepositoryImpl,
     context: Context
 ) {
+    val sharedPref =
+        context.getSharedPreferences(SharedPrefsManager.DEFAULT_NAME, Context.MODE_PRIVATE)
     var extended by remember { mutableStateOf(false) }
 
     if (notification != null) {
@@ -131,15 +134,17 @@ fun NotificationModelCard(
                 horizontalArrangement = Arrangement.End
             ) {
                 IconButton(onClick = {
+                    val userId =
+                        SharedPrefsManager.getString(
+                            sharedPref,
+                            SharedPrefsManager.USER_ID,
+                            null
+                        )
                     notificationRepositoryImpl.trashOrDelete(
                         notification.expireTime != null,
-                        notification.postTime
+                        notification.postTime,
+                        userId
                     )
-
-                    // Reset the swipeableState
-//                    CoroutineScope(Dispatchers.Main).launch {
-//                        swipeableState.animateTo(false)
-//                    }
                 }) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete")
                 }
