@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import com.beckachu.notificationfeed.ui.dialogs.PermissionDialog
 import com.beckachu.notificationfeed.ui.viewmodels.NotifListViewModel
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -123,6 +124,7 @@ fun AppBar(
 
             IconButton(onClick = {
                 notifListViewModel.toggleSearchMode()
+                notifListViewModel.selectedDateRange.value = null
             }) {
                 Icon(Icons.Filled.Search, contentDescription = "Search")
             }
@@ -183,7 +185,14 @@ fun AppBar(
                             showDateRangePicker = false
                             snackScope.launch {
                                 val startDate = pickerState.selectedStartDateMillis!!
-                                val endDate = pickerState.selectedEndDateMillis!!
+                                val calendar = Calendar.getInstance()
+                                calendar.timeInMillis = pickerState.selectedEndDateMillis!!
+                                calendar.set(Calendar.HOUR_OF_DAY, 23)
+                                calendar.set(Calendar.MINUTE, 59)
+                                calendar.set(Calendar.SECOND, 59)
+                                calendar.set(Calendar.MILLISECOND, 999)
+                                val endDate = calendar.timeInMillis
+
                                 notifListViewModel.selectedDateRange.value =
                                     Pair(startDate, endDate)
                             }
@@ -191,7 +200,7 @@ fun AppBar(
                         enabled = pickerState.selectedEndDateMillis != null,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     ) {
-                        Text(text = "Search")
+                        Text(text = "Filter")
                     }
                 }
 

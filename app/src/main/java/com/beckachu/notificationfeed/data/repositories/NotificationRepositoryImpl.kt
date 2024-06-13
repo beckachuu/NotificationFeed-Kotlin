@@ -157,7 +157,7 @@ class NotificationRepositoryImpl(
                 if (delete) {
                     notifDao.deleteOne(postTime)
                     if (userId != null) {
-                        notifRemoteDataSource.deleteOne(userId = userId, postTime = postTime)
+//                        notifRemoteDataSource.deleteOne(userId = userId, postTime = postTime)
                     }
                 } else {
                     val currentTime = System.currentTimeMillis() / 1000
