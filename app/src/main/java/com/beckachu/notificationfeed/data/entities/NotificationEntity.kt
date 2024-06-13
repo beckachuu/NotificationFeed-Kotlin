@@ -28,6 +28,8 @@ data class NotificationEntity(
     var isOngoing: Boolean = false,
     var flags: Int = 0,
 
+    var favorite: Boolean = false,
+
     // Device
     var ringerMode: Int = 0,
     var isScreenOn: Boolean = false,

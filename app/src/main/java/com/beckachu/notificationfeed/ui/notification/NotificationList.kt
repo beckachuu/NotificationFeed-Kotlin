@@ -23,6 +23,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -37,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -112,8 +115,9 @@ fun NotificationModelCard(
 
     if (notification != null) {
         val anchors =
-            mapOf(0f to false, -300f to true)
+            mapOf(0f to false, -420f to true)
         val swipeableState = rememberSwipeableState(initialValue = false)
+        val favorite = notification.favorite
 
         Box(
             Modifier
@@ -148,6 +152,20 @@ fun NotificationModelCard(
                 }) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete")
                 }
+
+                IconButton(onClick = {
+                    notificationRepositoryImpl.toggleFavorite(
+                        notification.postTime,
+                        favorite
+                    )
+                }) {
+                    Icon(
+                        imageVector = if (favorite) Icons.Rounded.Star else Icons.Filled.Star,
+                        contentDescription = "Toggle Favorite",
+                        tint = if (favorite) MaterialTheme.colorScheme.primary else Color.Gray
+                    )
+                }
+
                 IconButton(onClick = {
                     Util.openApp(context, notification.packageName)
                 }) {

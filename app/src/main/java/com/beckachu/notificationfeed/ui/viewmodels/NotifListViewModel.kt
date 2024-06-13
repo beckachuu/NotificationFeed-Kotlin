@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NotifListViewModel @Inject constructor(
-    notificationRepositoryImpl: NotificationRepositoryImpl
+    private val notificationRepositoryImpl: NotificationRepositoryImpl
 ) : ViewModel() {
 
     val selectedPackageName = MutableStateFlow<String?>(null)
@@ -66,6 +66,8 @@ class NotifListViewModel @Inject constructor(
             }.flow
         }.flatMapLatest { it }
 
+    val favoriteNotifications: Flow<PagingData<NotificationEntity>> =
+        notificationRepositoryImpl.getFavoriteNotifications()
 
     val deletedList: Flow<PagingData<NotificationEntity>> =
         notificationRepositoryImpl.getAllNotifications(true)

@@ -122,21 +122,21 @@ fun SettingsScreen(appList: List<AppEntity?>?) {
             )
         }
 
-//        Row(
-//            verticalAlignment = Alignment.CenterVertically,
-//            modifier = Modifier
-//                .clickable(onClick = {
-//                    val userId =
-//                        SharedPrefsManager.getString(sharedPref, SharedPrefsManager.USER_ID, null)
-//                    notificationRepositoryImpl.pushAllToRemote(userId)
-//                })
-//                .height(Const.ROW_HEIGHT),
-//        ) {
-//            Text(
-//                text = "Push to online storage",
-//                style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.primary)
-//            )
-//        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clickable(onClick = {
+                    val userId =
+                        SharedPrefsManager.getString(sharedPref, SharedPrefsManager.USER_ID, null)
+                    notificationRepositoryImpl.pushAllToRemote(userId)
+                })
+                .height(Const.ROW_HEIGHT),
+        ) {
+            Text(
+                text = "Push to online storage",
+                style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.primary)
+            )
+        }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -276,31 +276,29 @@ fun SettingsScreen(appList: List<AppEntity?>?) {
             )
         }
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.height(Const.BIG_ROW_HEIGHT)
-        ) {
-            Text(
-                text = "Check new app by default",
-                modifier = Modifier.weight(1f),
-//                style = MaterialTheme.typography.bodyLarge,
-            )
-            Switch(
-                checked = checkNewApp,
-                onCheckedChange = { isChecked ->
-                    run {
-                        checkNewApp = isChecked
-
-                        SharedPrefsManager.putBool(
-                            sharedPref,
-                            SharedPrefsManager.CHECK_NEW_APP,
-                            isChecked
-                        )
-                    }
-                }
-            )
-        }
-
+//        Row(
+//            verticalAlignment = Alignment.CenterVertically,
+//            modifier = Modifier.height(Const.BIG_ROW_HEIGHT)
+//        ) {
+//            Text(
+//                text = "Check new app by default",
+//                modifier = Modifier.weight(1f),
+//            )
+//            Switch(
+//                checked = checkNewApp,
+//                onCheckedChange = { isChecked ->
+//                    run {
+//                        checkNewApp = isChecked
+//
+//                        SharedPrefsManager.putBool(
+//                            sharedPref,
+//                            SharedPrefsManager.CHECK_NEW_APP,
+//                            isChecked
+//                        )
+//                    }
+//                }
+//            )
+//        }
 
 
         LazyColumn {

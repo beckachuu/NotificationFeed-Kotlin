@@ -67,4 +67,11 @@ interface NotificationDao {
 
     @Query("DELETE FROM notificationentity")
     fun deleteAll(): Int
+
+    @Query("UPDATE NotificationEntity SET favorite = :isFavorite WHERE postTime = :postTime")
+    fun setFavorite(postTime: Long, isFavorite: Boolean)
+
+    @Query("SELECT * FROM notificationentity WHERE favorite = 1 AND expireTime IS NULL ORDER BY postTime DESC")
+    fun getFavorites(): PagingSource<Int, NotificationEntity>
+
 }

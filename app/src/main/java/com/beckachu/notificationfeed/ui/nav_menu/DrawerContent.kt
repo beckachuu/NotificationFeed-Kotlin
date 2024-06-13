@@ -85,16 +85,16 @@ fun DrawerContent(
                 }
             )
             NavigationDrawerItem(
-                label = { Text(text = "Important") },
-                icon = { Icon(Icons.Filled.Star, contentDescription = "Important") },
+                label = { Text(text = "Favorites") },
+                icon = { Icon(Icons.Filled.Star, contentDescription = "Favorites") },
                 selected = false,
                 onClick = {
-                    navController.navigate(Routes.Important.route) {
+                    navController.navigate(Routes.Favorites.route) {
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }
-                    notifListViewModel.selectedAppName.value = "Important"
+                    notifListViewModel.selectedAppName.value = "Favorites"
                 }
             )
             NavigationDrawerItem(

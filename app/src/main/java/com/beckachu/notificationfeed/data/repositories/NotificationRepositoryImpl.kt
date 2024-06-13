@@ -138,6 +138,19 @@ class NotificationRepositoryImpl(
         }
     }
 
+    fun toggleFavorite(postTime: Long, isFavorite: Boolean) {
+        executor.execute {
+            notifDao.setFavorite(postTime, !isFavorite)
+        }
+    }
+
+    fun getFavoriteNotifications() = Pager(
+        PagingConfig(pageSize = Const.PAGE_SIZE)
+    ) {
+        notifDao.getFavorites()
+    }.flow
+
+
     fun trashOrDelete(delete: Boolean, postTime: Long, userId: String?) {
         executor.execute {
             synchronized(Const.LOCK_OBJECT) {
